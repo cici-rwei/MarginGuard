@@ -10,3 +10,47 @@
 /* Two data modes share the business workflow and do not change ABS layout. */
 .mode-switcher{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}.mode-link{padding:10px 17px;border:1px solid #cfd9e9;background:white;border-radius:8px;color:#526580;text-decoration:none;font-size:12px;font-weight:600}.mode-link.active{background:#244a8b;color:white;border-color:#244a8b}.check-row{display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.6;margin:14px 0}.check-row input[type=checkbox]{width:16px;height:16px;min-width:16px;margin:3px 0 0;accent-color:#3568e8}.dataset-actions{display:flex;gap:15px;align-items:center;flex-wrap:wrap;margin:0 0 18px;font-size:12px;color:#61728b}.handoff-buttons{display:flex;gap:10px;flex-wrap:wrap}.note button{margin:5px 8px 5px 0}.field input[type=file]{font-size:11px}.field select{min-width:0}.form-grid .check-row{grid-column:1/-1}.review-start,.review-end{min-width:140px}.review-range{max-width:280px}#upload-report{padding-top:20px;margin-top:20px;border-top:1px solid var(--line)}#upload-errors{margin-top:18px}#upload-errors ul{padding-left:18px}#upload-report .check-row{margin:0}#draft-status{font-size:11px}#overview-risk-kpi>.kpi{height:100%}#decision-summary .kpis{margin-top:20px}#decision-summary p{font-size:12px}#delete-confirmation button{margin:12px 10px 0 0}#historical-references{font-size:12px}
 @media(max-width:600px){.mode-switcher{display:grid;grid-template-columns:1fr 1fr}.mode-link{text-align:center;padding:10px 8px;font-size:11px}.dataset-actions{align-items:flex-start;gap:10px}.dataset-actions>span{width:100%}.card #upload-form .form-grid{grid-template-columns:1fr}.check-row{font-size:11px}.handoff-buttons button{width:100%}}
+
+/* Post-deployment business UX: disclosure stays available without crowding the task. */
+.mode-availability{display:block;font-size:10px;font-weight:500;margin-top:2px;color:#7a6143}.mode-unavailable{border-style:dashed}.mode-unavailable.active .mode-availability{color:#ecdfc9}.mode-availability-note{font-size:11px;margin:-7px 0 15px;color:#776747}.source-details{margin-top:7px}.source-details summary,.draft-details summary{font-size:11px;line-height:1.6}.source-details p{margin:8px 0;font-size:12px}.draft-details{margin:-7px 0 15px}.draft-details .note{margin:7px 0 0}.field-help{margin-top:5px}.field-help summary{font-size:10px;padding:2px 0}.field-help p{font-size:11px;margin:6px 0 0;line-height:1.6}.scenario-method-details p{font-size:12px;line-height:1.7}.synthetic-accuracy-note p:last-child{margin-bottom:0}#handoff-differences{margin:10px 0;font-size:12px}#handoff-differences ul{padding-left:19px;margin:7px 0}#handoff-differences li{margin:5px 0;overflow-wrap:anywhere}#handoff-preview{white-space:pre-line;line-height:1.8;font-size:12px;padding:10px 0;color:var(--ink)}#inventory-coverage{font-size:12px;line-height:1.8}#inventory-coverage p{color:inherit}#inventory-coverage dl{margin:8px 0}.strategy-cards{display:none}.strategy-card{border:1px solid var(--line);border-radius:9px;padding:16px;background:#fff;min-width:0}.strategy-card.is-recommended{border-color:#7ba1de;background:#f8fbff}.strategy-card h3{margin:0;font-size:16px}.strategy-card header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px}.strategy-metrics{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 13px;margin:13px 0}.strategy-metrics dt{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.strategy-metrics dd{font-size:13px;text-align:right;font-weight:600;margin:0;overflow-wrap:anywhere}.strategy-feasibility{border-top:1px solid var(--line);padding-top:12px;font-size:12px}.strategy-feasibility p{margin:7px 0;font-size:12px}.strategy-feasibility ul,.strategy-card>ul{margin:8px 0 0;padding-left:18px;font-size:12px;overflow-wrap:anywhere}.strategy-card .tag{white-space:normal}.strategy-card .constraints{font-size:12px;line-height:1.7}
+@media(max-width:600px){
+  body[data-workspace="business"] .sidebar .page-nav{display:none}
+  body[data-workspace="business"] .sidebar{padding:10px 16px}
+  body[data-workspace="business"] .sidebar .brand{margin-bottom:8px}
+  body[data-workspace="business"] .workspace-switcher{margin:0;padding:0;border:0}
+  body[data-workspace="business"] .topbar{display:none}
+  body[data-workspace="business"] main{padding:18px 16px}
+  body[data-workspace="business"] .page-heading{margin-bottom:15px}
+  body[data-workspace="business"] .page-heading .eyebrow{display:none}
+  body[data-workspace="business"] .page-heading p{font-size:12px;line-height:1.6}
+  body[data-workspace="business"] .page-heading h1{font-size:25px;line-height:1.25}
+  .business-context{padding:11px 13px;margin-bottom:12px}
+  .context-title{font-size:11px;gap:6px;margin-bottom:4px}
+  .business-context p{font-size:11px}
+  .draft-details{margin:0 0 13px}
+  .business-workflow{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:15px}
+  .flow-step{justify-content:center;padding:8px 5px;font-size:10px;min-height:36px;text-align:center;line-height:1.35}
+  .flow-step .step-number{display:none}
+  .selection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px;margin-bottom:16px}
+  .selection>div{width:auto;min-width:0}.selection select{min-width:0;width:100%;font-size:12px}
+  .selection-meta{grid-column:1/-1;font-size:10px;overflow-wrap:anywhere}
+  .mode-switcher{margin-bottom:12px}.mode-link{font-size:11px;padding:9px 6px}
+  .mode-availability{font-size:9px;line-height:1.4}
+  .mode-availability-note{font-size:10px;line-height:1.6;margin:-3px 0 13px}
+  .card{padding:17px;margin-bottom:16px}
+  .section-title{align-items:flex-start;flex-wrap:wrap;gap:8px}
+  .field label{font-size:12px}.field small{font-size:11px;line-height:1.6;min-height:0}
+  .field input,.field select{font-size:16px}
+  .field-help summary{font-size:11px}
+  .form-actions{margin-top:15px;padding-top:15px;gap:8px}
+  .form-actions button{min-height:42px}
+  .comparison-table{display:none}
+  .strategy-cards{display:grid;gap:13px}
+  .strategy-card{padding:14px}
+  .strategy-metrics dd{font-size:12px}
+  .source-details summary,.draft-details summary{font-size:11px}
+  .synthetic-accuracy-note{font-size:11px;padding:12px 14px}
+  .handoff-buttons{gap:5px}.handoff-buttons button{margin:5px 0;min-height:42px}
+  #handoff-confirm button{margin-right:5px;min-height:42px}
+  #handoff-preview{font-size:11px}
+}

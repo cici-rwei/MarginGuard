@@ -36,7 +36,7 @@ ROOT_FILES = (
     'DEMO_SCRIPT_3MIN.md', 'AUD_USD_CURRENCY_DESIGN.md',
     'BUSINESS_DATA_UPLOAD_PRD.md', 'MARGINGUARD_PRODUCT_RESTRUCTURE.md',
     'PRODUCT_RESTRUCTURE_A_REPORT.md', 'SYNTHETIC_DEMO_MINIMAL_PLAN.md',
-    'PUBLIC_DEPLOYMENT_REPORT.md', 'DEPLOYMENT_FILE_AUDIT.md',
+    'PUBLIC_DEPLOYMENT_REPORT.md', 'DEPLOYMENT_FILE_AUDIT.md', 'POST_DEPLOYMENT_UAT_REPORT.md',
     'deployment_files.json',
 )
 TEST_FILES = (
@@ -48,7 +48,7 @@ TEST_FILES = (
     'test_scenario.py', 'test_web.py', 'test_release_config.py',
     'test_final_package.py', 'test_business_context.py',
     'test_business_ui.py', 'test_restructure_b.py', 'test_synthetic_demo.py',
-    'business_context.test.js',
+    'business_context.test.js', 'test_uat_templates.py', 'uat_business_ui.test.js',
 )
 TEMPLATE_FILES = (
     '_business_upload.html', 'base.html', 'dashboard.html', 'forecasting.html',

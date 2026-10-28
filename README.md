@@ -7,7 +7,7 @@ MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运�
 - **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。本地 `Analyse My Business` 通过临时匿名会话分析用户 CSV，公开上传保持关闭。流程为 **Upload → Validate → Select Product & Store → Forecast → Inventory → Financial Scenario → Decision Summary**。
 - **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
 
-企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。版本、功能开关及真实公网验收见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。
+企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。版本、功能开关及真实公网验收见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。 本轮上线后体验优化和上传开放评估见 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，公开 CSV 在生产安全验收通过前保持关闭。
 
 ## 1. 在 Mac 上独立启动
 

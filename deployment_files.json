@@ -1,17 +1,17 @@
 {
   "schema_version": 2,
   "audit_date": "2026-10-28",
-  "frozen_at_utc": "2026-10-28T08:35:10.890955+00:00",
-  "scope": "approved_synthetic_demo_and_abs_first_private_repository_commit_candidate",
+  "frozen_at_utc": "2026-10-28T11:35:24.297936+00:00",
+  "scope": "post_deployment_uat_part_a_synthetic_and_abs_uploads_disabled",
   "source": "current_project_explicit_final_package_allowlist",
-  "file_count": 110,
-  "total_bytes": 3654047,
+  "file_count": 113,
+  "total_bytes": 3702740,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "size_bytes": 1328,
-      "sha256": "716f5e1c299c5c450f8208c322f3889fe27551a2c717a75652562f365d1e0f8a",
+      "size_bytes": 1358,
+      "sha256": "f14d4ca83324d4337d5724464e877fdf0180926470cbf1ffd3b6c9df1e09ce1c",
       "reason": "只读持续集成；Python/Node 测试，无部署秘密及数据下载",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -142,6 +142,13 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "POST_DEPLOYMENT_UAT_REPORT.md",
+      "size_bytes": 4146,
+      "sha256": "72e0513e459cdd4e4d9d7b1836aa0ae8d7b5e4cac96e8e92c254b37db0492d1b",
+      "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "PRODUCT_RESTRUCTURE_A_REPORT.md",
       "size_bytes": 10646,
       "sha256": "837b3d1357fefa9962891d22a585c666e01b36eceace096c24085d5152d471fa",
@@ -157,8 +164,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 23563,
-      "sha256": "392ce65788af3ec76c1b617012e7bb90afa8b0dcf2d8e558d1761251290036c7",
+      "size_bytes": 23737,
+      "sha256": "356affd0764c00e1a532958b472ac8dc6ba437c23a657960f29ae1a7601c1b4a",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -318,7 +325,7 @@
     },
     {
       "path": "deployment_files.json",
-      "size_bytes": 35142,
+      "size_bytes": 36063,
       "sha256": null,
       "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
       "review_status": "reviewed_deployment_candidate"
@@ -493,8 +500,8 @@
     },
     {
       "path": "scripts/package_final.py",
-      "size_bytes": 12187,
-      "sha256": "dff69a778e6895c6ef1dafa2bb05dbe008040cde25dfce51d54ee5b167f755ca",
+      "size_bytes": 12272,
+      "sha256": "602b81589e9424323c02d7eb495591ff30ab66402dd3678d443b1ef083409642",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -528,29 +535,29 @@
     },
     {
       "path": "static/css/style.css",
-      "size_bytes": 13679,
-      "sha256": "16aa12dde5517c3a704ab49efa48911c3dd36f2c92526741b5ca043ede637a40",
+      "size_bytes": 18385,
+      "sha256": "30f7e28b9519b2765180747b5b25df7748f10f951ef4ccbf08adcf6d068e0c50",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "static/js/business_context.js",
-      "size_bytes": 3627,
-      "sha256": "5f8dd300fe4e09421fa4bfc86be68bb97131c08dd4da2f878934024e85e721e1",
+      "size_bytes": 11446,
+      "sha256": "145960768466af6450bffb824fab08a1e7e8cecb43c140eefc2020812dd08809",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "static/js/business_upload.js",
-      "size_bytes": 9169,
-      "sha256": "d453ad02da485ecc97ed6edadfce38c866905912f7c490bede549ef6e11ec8cb",
+      "size_bytes": 9491,
+      "sha256": "08ed0e65955c2260409485eff5dea1a96bdf36f0f0c3b07f6ce57604c4d731f2",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "static/js/main.js",
-      "size_bytes": 34924,
-      "sha256": "b3f65a3a3c05a082495e1995d6dd299a954a3748ca9ff2ee33a6b2f8e49df513",
+      "size_bytes": 47309,
+      "sha256": "500e5928308b386cdc04aac2235405ff412f8bc526cf461eeb35864ea9ab510c",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -570,36 +577,36 @@
     },
     {
       "path": "templates/_business_upload.html",
-      "size_bytes": 2803,
-      "sha256": "c6daf7697c531958bfaef349ffc1af91d1b4ce12006b2c5edb8909832708a63c",
+      "size_bytes": 3324,
+      "sha256": "68c90b766121bd590a8ac6ca4ad3bc28eb985e61d569569b54d19608b2aed3ca",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "templates/base.html",
-      "size_bytes": 12165,
-      "sha256": "d4cfdbc9de9ebcf191a1707f25dced28233f076936ab46321feb0ab61eab45f4",
+      "size_bytes": 13363,
+      "sha256": "279d288b59fb60d0f03a57120355dc7b63fca0b861291fa1985e3711888f10a1",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "templates/dashboard.html",
-      "size_bytes": 1420,
-      "sha256": "c82bf3ab132bce8b5d4745ee651ddaf5525e76f651741c2789e497144c68044f",
+      "size_bytes": 1861,
+      "sha256": "0ab18780f111b30fd7f76dc0ab395ff1af457f648828b494bec809139c1eb46f",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "templates/forecasting.html",
-      "size_bytes": 1663,
-      "sha256": "c0412e12d7da7cf6ca1ff4b003b2600456b58eceb2093562162ff7c688a2c6ec",
+      "size_bytes": 2248,
+      "sha256": "9308b1307e266efacd4422a1038d355fe02c6a628114aa03c3b39de598417aef",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "templates/inventory.html",
-      "size_bytes": 948,
-      "sha256": "bd39146c5aacde67714490183824599bc84b1645c54e5f1d0f1415ee68ca0bf4",
+      "size_bytes": 1619,
+      "sha256": "f11386563a5ad2bb9ddb086e693a2558ba02cded09776038f455bbb3113a8d00",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -612,8 +619,8 @@
     },
     {
       "path": "templates/scenarios.html",
-      "size_bytes": 2554,
-      "sha256": "40e3ce7990eb4b9c6162da4ed15d8890a99099c10c26fbe1bc259af89d831558",
+      "size_bytes": 3936,
+      "sha256": "c9cf7be67f85a29004747c531dcfddde5b6b70fe235dfc4644c66f38432ec2ca",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -765,10 +772,24 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "tests/test_uat_templates.py",
+      "size_bytes": 5240,
+      "sha256": "398254771e9ee4f0239d86e78d710417d4d7f1c6b16795925b17da48026d3031",
+      "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "tests/test_web.py",
       "size_bytes": 5845,
       "sha256": "fd3fa6a8746ff6509df9f671944375cc5a65dea830479d7fbea9c47fa21a111c",
       "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/uat_business_ui.test.js",
+      "size_bytes": 8067,
+      "sha256": "1d316fae91c106cd798fb624f6e47aa2b819719f7b4313995f4e145cbbc50c6f",
+      "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
       "review_status": "reviewed_deployment_candidate"
     },
     {
