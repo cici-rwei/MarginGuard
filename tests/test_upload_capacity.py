@@ -122,6 +122,66 @@ class PublicUploadCapacityTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT COUNT(*) FROM global_rates').fetchone()[0], 0)
         self.store.global_rate('SYNTHETIC_upload', 1, 60)
 
+    def test_deleting_owner_keeps_active_lease_shared_with_other_workers(self):
+        identifier, _ = self.store.save_pending(self.owner, {'fixture': 'SYNTHETIC_PRIVATE'})
+        lease = self.store.acquire_job(self.owner, 30)
+        self.store.delete_session(self.owner)
+        second = BusinessStore(self.temp.name, clock=lambda: self.now, max_jobs=1)
+        token, _, _ = second.create_session()
+        next_owner = owner_key(token)
+        second.cleanup()
+        with self.assertRaises(BusinessError) as denied:
+            second.load(self.owner, identifier)
+        self.assertEqual(denied.exception.status, 401)
+        with sqlite3.connect(str(self.store.path)) as db:
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM datasets').fetchone()[0], 0)
+        with self.assertRaises(BusinessError) as busy:
+            second.acquire_job(next_owner, 30)
+        self.assertEqual(busy.exception.code, 'processing_busy')
+        self.store.release_job(lease)
+        replacement = second.acquire_job(next_owner, 30)
+        second.release_job(replacement)
+        self.assert_no_jobs()
+
+    def test_owner_expiry_does_not_free_capacity_before_lease_deadline(self):
+        self.store.idle_ttl = 2
+        identifier, _ = self.store.save_pending(self.owner, {'fixture': 'SYNTHETIC_PRIVATE'})
+        lease = self.store.acquire_job(self.owner, 30)
+        self.now += 3
+        second = BusinessStore(self.temp.name, clock=lambda: self.now, max_jobs=1, idle_ttl=2)
+        second.cleanup()
+        token, _, _ = second.create_session()
+        with self.assertRaises(BusinessError):
+            self.store.load(self.owner, identifier)
+        with sqlite3.connect(str(self.store.path)) as db:
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM datasets').fetchone()[0], 0)
+            self.assertEqual(db.execute('SELECT id FROM jobs').fetchone()[0], lease)
+        with self.assertRaises(BusinessError) as busy:
+            second.acquire_job(owner_key(token), 30)
+        self.assertEqual(busy.exception.code, 'processing_busy')
+        # A crashed request still recovers capacity at its own lease deadline.
+        self.now += 28
+        second.cleanup()
+        self.assert_no_jobs()
+        fresh, _, _ = second.create_session()
+        replacement = second.acquire_job(owner_key(fresh), 30)
+        second.release_job(replacement)
+
+    def test_processing_slot_finally_releases_capacity_after_owner_revocation(self):
+        second = BusinessStore(self.temp.name, clock=lambda: self.now, max_jobs=1)
+        token, _, _ = second.create_session()
+        with self.assertRaisesRegex(RuntimeError, 'SYNTHETIC request failed'):
+            with service.processing_slot(self.store, self.owner, 5):
+                self.store.delete_session(self.owner)
+                second.cleanup()
+                with self.assertRaises(BusinessError) as busy:
+                    second.acquire_job(owner_key(token), 30)
+                self.assertEqual(busy.exception.code, 'processing_busy')
+                raise RuntimeError('SYNTHETIC request failed')
+        self.assert_no_jobs()
+        replacement = second.acquire_job(owner_key(token), 30)
+        second.release_job(replacement)
+
     def test_global_rate_rejects_invalid_policy_without_sql_effects(self):
         for args in (('', 1, 60), ('SYNTHETIC', 0, 60), ('SYNTHETIC', 1, False)):
             with self.assertRaises(ValueError):

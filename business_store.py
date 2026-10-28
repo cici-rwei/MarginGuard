@@ -263,7 +263,10 @@ class BusinessStore:
     def delete_session(self, owner):
         with self._connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            for table in ('datasets', 'rates', 'jobs', 'sessions'):
+            # Revocation removes data/access immediately, but it cannot stop an
+            # already running subprocess. Keep its capacity lease until the
+            # request's finally block releases it or its own deadline expires.
+            for table in ('datasets', 'rates', 'sessions'):
                 db.execute('DELETE FROM ' + table + ' WHERE owner=?', (owner,))
             db.commit()
 
@@ -274,7 +277,9 @@ class BusinessStore:
             db.execute('DELETE FROM sessions WHERE expires<=? OR seen+?<=?', (now, self.idle_ttl, now))
             db.execute('DELETE FROM datasets WHERE expires<=? OR owner NOT IN (SELECT owner FROM sessions)', (now,))
             db.execute('DELETE FROM rates WHERE owner NOT IN (SELECT owner FROM sessions)')
-            db.execute('DELETE FROM jobs WHERE expires<=? OR owner NOT IN (SELECT owner FROM sessions)', (now,))
+            # Owner expiry must not admit a second subprocess while the first
+            # is still running. A job lease is capacity metadata, not access.
+            db.execute('DELETE FROM jobs WHERE expires<=?', (now,))
             db.execute('DELETE FROM global_rates WHERE expires<=?', (now,))
             db.commit()
 

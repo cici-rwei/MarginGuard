@@ -5,7 +5,7 @@
   "scope": "post_deployment_uat_capacity_review_and_public_upload_disabled",
   "source": "current_project_explicit_final_package_allowlist",
   "file_count": 119,
-  "total_bytes": 3769589,
+  "total_bytes": 3781299,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -143,8 +143,8 @@
     },
     {
       "path": "POST_DEPLOYMENT_UAT_REPORT.md",
-      "size_bytes": 8779,
-      "sha256": "0f8aa3a640aa08fa4bbf6cf64a9dbd8fd92b0e56cbd3603fd95dcae397739622",
+      "size_bytes": 16938,
+      "sha256": "69f19a46ebc37ce435de9c62d0a4789805c9d6f018fd52392f563b6599df0883",
       "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -241,8 +241,8 @@
     },
     {
       "path": "business_store.py",
-      "size_bytes": 15465,
-      "sha256": "7b14e06cbf04f21ff63495e402a723c2b5775222fec0282db1277acb18bc68b9",
+      "size_bytes": 15803,
+      "sha256": "25ae723cb435887d28805f2b115356f36ab9e12ff55e095fba89d6eccc11af65",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -325,7 +325,7 @@
     },
     {
       "path": "deployment_files.json",
-      "size_bytes": 37946,
+      "size_bytes": 37947,
       "sha256": null,
       "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
       "review_status": "reviewed_deployment_candidate"
@@ -801,8 +801,8 @@
     },
     {
       "path": "tests/test_upload_capacity.py",
-      "size_bytes": 11250,
-      "sha256": "f4a2f9e2718be9fd5ce2906810fd212e0bd78fa43c704ee79cf0e3b1025f23d3",
+      "size_bytes": 14462,
+      "sha256": "f4ad077b845906f2fdfba873a34cdc1e5c157cb13c8313ff10df41790bbe2073",
       "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
       "review_status": "reviewed_deployment_candidate"
     },
