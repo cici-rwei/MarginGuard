@@ -86,9 +86,13 @@ class PostDeploymentTemplateTests(unittest.TestCase):
 
     def test_upload_explains_early_data_loss_and_explicit_deletion(self):
         doc = Document(self.client(uploads=True).get('/?mode=business').get_data(as_text=True))
+        # Part B changes this new Part A contract: the session API now supplies
+        # capacity/TTL copy; Node tests verify both public and local TTL values.
         for phrase in ('service restarts or sleeps', 'Closing a tab is not a deletion request',
-                       'Use Delete uploaded data', '30 minutes idle or 2 hours total'):
+                       'Use Delete uploaded data', 'session expiry limits will appear'):
             self.assertIn(phrase, doc.root.text())
+        ids = {node.attrs.get('id') for node in doc.root.elements()}
+        self.assertTrue({'upload-expiry', 'upload-limits'}.issubset(ids))
 
 
 if __name__ == '__main__':

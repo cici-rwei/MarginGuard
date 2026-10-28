@@ -28,7 +28,10 @@ class BusinessStore:
     def __init__(self, root, *, clock=time.time, pending_ttl=900, idle_ttl=1800,
                  absolute_ttl=7200, max_bytes=500 * 1024 * 1024,
                  max_dataset_bytes=20 * 1024 * 1024, max_jobs=2,
-                 max_sessions=100):
+                 max_sessions=100, max_file_bytes=5 * 1024 * 1024,
+                 max_rows=50000, max_series=100,
+                 worker_memory_bytes=384 * 1024 * 1024,
+                 max_worker_output_bytes=25 * 1024 * 1024):
         self.root = Path(root).expanduser()
         project = Path(__file__).resolve().parent
         if self.root.is_symlink():
@@ -47,6 +50,9 @@ class BusinessStore:
         self.absolute_ttl, self.max_bytes = absolute_ttl, max_bytes
         self.max_dataset_bytes, self.max_jobs = max_dataset_bytes, max_jobs
         self.max_sessions = max_sessions
+        self.max_file_bytes, self.max_rows, self.max_series = max_file_bytes, max_rows, max_series
+        self.worker_memory_bytes = worker_memory_bytes
+        self.max_worker_output_bytes = max_worker_output_bytes
         self._cleanup_started = False
         self._cleanup_lock = threading.Lock()
         # Set private permissions before SQLite opens the database.
@@ -68,6 +74,10 @@ class BusinessStore:
                     count INTEGER NOT NULL, PRIMARY KEY(owner,bucket,window));
                 CREATE TABLE IF NOT EXISTS jobs (
                     id TEXT PRIMARY KEY, owner TEXT NOT NULL, expires REAL NOT NULL);
+                CREATE TABLE IF NOT EXISTS global_rates (
+                    bucket TEXT NOT NULL, window INTEGER NOT NULL,
+                    expires REAL NOT NULL, count INTEGER NOT NULL,
+                    PRIMARY KEY(bucket,window));
             ''')
 
     @contextmanager
@@ -155,6 +165,32 @@ class BusinessStore:
             db.commit()
         return job_id
 
+    def global_rate(self, bucket, limit, seconds):
+        """Atomic admission shared by every owner and application worker.
+
+        Only trusted server policy chooses the bucket and limits. These counters
+        deliberately have no owner so creating/deleting a session cannot reset
+        admission. Fixed windows may permit a boundary burst of twice the limit.
+        """
+        if (not isinstance(bucket, str) or not 1 <= len(bucket) <= 64
+                or type(limit) is not int or limit <= 0
+                or type(seconds) is not int or seconds <= 0):
+            raise ValueError('Global admission requires a valid bounded policy.')
+        now = self.clock()
+        window = int(now // seconds)
+        with self._connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            db.execute('DELETE FROM global_rates WHERE expires<=?', (now,))
+            row = db.execute('SELECT count FROM global_rates WHERE bucket=? AND window=?',
+                             (bucket, window)).fetchone()
+            if row and row[0] >= limit:
+                raise BusinessError('global_rate_limit',
+                                    'The temporary upload service is busy. Wait a minute and try again.', 429)
+            db.execute('INSERT INTO global_rates VALUES (?,?,?,1) '
+                       'ON CONFLICT(bucket,window) DO UPDATE SET count=count+1',
+                       (bucket, window, (window + 1) * seconds))
+            db.commit()
+
     def release_job(self, job_id):
         with self._connect() as db:
             db.execute('DELETE FROM jobs WHERE id=?', (job_id,))
@@ -239,6 +275,7 @@ class BusinessStore:
             db.execute('DELETE FROM datasets WHERE expires<=? OR owner NOT IN (SELECT owner FROM sessions)', (now,))
             db.execute('DELETE FROM rates WHERE owner NOT IN (SELECT owner FROM sessions)')
             db.execute('DELETE FROM jobs WHERE expires<=? OR owner NOT IN (SELECT owner FROM sessions)', (now,))
+            db.execute('DELETE FROM global_rates WHERE expires<=?', (now,))
             db.commit()
 
     def start_cleanup(self, interval=300):

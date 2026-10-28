@@ -1,0 +1,9 @@
+<section id="upload-review-panel" class="card" aria-label="Controlled upload acceptance test">
+  <h2>Restricted upload acceptance test</h2>
+  <p>Public CSV uploads are still closed. This temporary test is for authorised reviewers using synthetic CSV files only.</p>
+  <form id="upload-review-form" method="post" action="/?mode=business&amp;review=1">
+    <div class="field"><label for="upload-review-key">Temporary review key</label><input id="upload-review-key" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="64" required aria-describedby="upload-review-help"><small id="upload-review-help">Enter the key supplied for this acceptance test. It is sent securely once and is not saved in browser storage.</small></div>
+    <div class="form-actions"><button type="submit" class="primary">Start restricted test</button><span id="upload-review-status" role="status"></span></div>
+  </form>
+  <p>Access expires automatically. Do not upload real business, customer or payment information.</p>
+</section>

@@ -76,16 +76,16 @@ Inventory → Decision Lab 提供 **Use inventory assumptions** 和 **Use sugges
 - 价格、成本空白保持未知；历史参考价只在用户明确选择后用于假设。现有库存成本与新采购成本分别填写，不自动同时套用一个历史成本。
 - 同一数据集只使用 **AUD 或 USD**。所有金额输入须使用同一币种与税额口径；没有汇率换算或税务计算。ABS 指标仍为 AUD，不能与 USD 商品金额直接混算。
 
-默认保护边界：
+容量限制按运行环境区分；公开配置更保守，实际上传面板以服务器返回的限制为准：
 
-| 项目 | 默认限制 |
-|---|---|
-| CSV | 5 MiB、50,000 行、100 个商品—门店组合；每组历史跨度最多 1,096 天 |
-| 待确认数据 | 15 分钟后过期 |
-| 匿名会话 | 空闲 30 分钟或创建后 2 小时失效，以先到者为准 |
-| 计算 | 单任务 5 秒超时；共享并发上限 2；另有进程资源限制 |
-| 请求频率 | 每会话 10 分钟最多 3 次上传；每分钟最多 30 次计算类请求 |
-| 私有存储 | 仓库外 SQLite；单数据集默认 20 MiB，总容量默认 500 MiB |
+| 项目 | 本地默认 | 公开环境保守配置（不代表上传已开放） |
+|---|---|---|
+| CSV | 5 MiB、50,000行、100组合 | 1 MiB、10,000行、20组合；历史跨度仍最多1,096天 |
+| 待确认数据 | 15分钟后过期 | 相同 |
+| 匿名会话 | 空闲30分钟或创建后2小时，以先到者为准 | 相同；休眠/重启可提前失效 |
+| 计算 | 5秒超时、2个共享计算槽 | 5秒、1个共享槽；Linux child128 MiB，设置资源限制失败即拒绝处理 |
+| 请求频率 | 每会话10分钟3次上传、每分钟30次计算 | 保留每会话规则，另加全局每分钟240请求/20次会话建立/12次上传/60次计算准入 |
+| 私有存储 | 仓库外SQLite，单数据集20 MiB、payload总量500 MiB | 单数据集2 MiB、总payload16 MiB、最多20会话；SQLite与journal仍需额外空间 |
 
 上传在服务器端按会话校验所有权；POST/DELETE 校验 CSRF 与来源。用户文件不作为代码执行，不接受本地文件路径输入，不提供原文件下载。私有响应使用 `no-store`；不将企业数据写入 GitHub、静态目录或最终 ZIP。权限和限额不等于经过独立生产安全审计。
 
@@ -248,3 +248,10 @@ python scripts/cleanup_business_data.py --storage-root /absolute/private/directo
 ```
 
 正式课程 rubric、认可的 Advanced Topics 和 AI 披露要求仍需对照官方文件确认。提交材料见 [COMP9001_COMPLIANCE.md](COMP9001_COMPLIANCE.md)、[AI_USE_DECLARATION.md](AI_USE_DECLARATION.md)、[PADLET_DRAFT.md](PADLET_DRAFT.md) 和 [DEMO_SCRIPT_3MIN.md](DEMO_SCRIPT_3MIN.md)；未确认项不能写成已获课程批准。
+
+
+## 上线后验收与公开上传状态
+
+Part A体验优化已上线：手机策略卡片、明确的上传关闭状态、参数导入差异及业务语言帮助。公共容量限制和临时受控验收门禁已准备；**公开上传保持关闭，受控门禁也默认关闭**。启用受控验收前需用户批准；它只能交换既有匿名会话，不提供新的文件读取或计算接口。
+
+门禁配置名称为 `ENABLE_BUSINESS_UPLOAD_REVIEW`、`MARGINGUARD_UPLOAD_REVIEW_KEY_SHA256`、`MARGINGUARD_UPLOAD_REVIEW_DEADLINE`。只存随机测试凭证的SHA-256摘要，原凭证不能写入Git、URL或日志；测试窗口最长2小时，签名授权还受owner存活、会话及门禁期限约束。配置不等于验收通过，当前状态和具体待测项以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准。

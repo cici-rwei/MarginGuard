@@ -14,6 +14,8 @@ from market_api import create_market_blueprint
 from runtime_config import configure
 from business_api import create_business_blueprint
 from synthetic_demo import create_synthetic_blueprint
+from upload_review import (configure_upload_review, business_upload_enabled,
+                           review_session_authorized, review_window_open)
 
 ROOT = Path(__file__).resolve().parent
 
@@ -35,6 +37,7 @@ class DataUnavailable(Exception):
 def create_app(data_dir=None, config=None):
     app = Flask(__name__)
     configure(app, config)
+    configure_upload_review(app)
     app.config.update(DATA_DIR=Path(data_dir) if data_dir else ROOT / 'data')
     app.register_blueprint(create_market_blueprint(app.config['DATA_DIR'] / 'abs'))
     app.register_blueprint(create_business_blueprint())
@@ -96,7 +99,11 @@ def create_app(data_dir=None, config=None):
     for route, (page, title) in pages.items():
         def view(page=page, title=title):
             return render_template(page + '.html', page=page, title=title,
-                                   upload_enabled=app.config['ENABLE_BUSINESS_UPLOAD'],
+                                   upload_enabled=business_upload_enabled(),
+                                   upload_review_active=review_session_authorized(),
+                                   upload_review_entry=(page == 'dashboard' and review_window_open()
+                                                        and request.args.get('mode') == 'business'
+                                                        and request.args.get('review') == '1'),
                                    demo_enabled=app.config['ENABLE_M5_DEMO'],
                                    synthetic_demo_enabled=app.config['ENABLE_SYNTHETIC_DEMO'],
                                    public_mode=app.config['PUBLIC_MODE'])
@@ -112,15 +119,17 @@ def create_app(data_dir=None, config=None):
                                                      "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
         if app.config['PUBLIC_MODE']:
             response.headers['Strict-Transport-Security'] = 'max-age=31536000'
-        if request.path.startswith('/api/business/'):
+        if (request.path.startswith('/api/business/') or request.endpoint == 'features'
+                or request.endpoint in {'dashboard', 'forecasting', 'inventory', 'scenarios'}):
             response.headers['Cache-Control'] = 'no-store'
+            response.vary.add('Cookie')
         return response
 
     @app.get('/api/features')
     def features():
         return jsonify(demo_enabled=app.config['ENABLE_M5_DEMO'],
                        synthetic_demo_enabled=app.config['ENABLE_SYNTHETIC_DEMO'],
-                       upload_enabled=app.config['ENABLE_BUSINESS_UPLOAD'], public_mode=app.config['PUBLIC_MODE'])
+                       upload_enabled=business_upload_enabled(), public_mode=app.config['PUBLIC_MODE'])
 
     @app.get('/api/catalog')
     def catalog():

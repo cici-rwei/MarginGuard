@@ -73,3 +73,39 @@ test('disabled upload entry stays explicit and recovers when the feature is enab
   const {sandbox,element}=pageHarness();vm.runInContext('features={upload_enabled:false};setModeLabels()',sandbox);assert.match(element('mode-business').textContent,/Temporarily unavailable/);
   vm.runInContext('features={upload_enabled:true};setModeLabels()',sandbox);assert.equal(element('mode-business').textContent,'Analyse My Business');assert.equal(element('upload-availability').hidden,true);
 });
+
+const publicUploadLimits={file_bytes:1024*1024,rows:10000,series:20,pending_seconds:600,idle_seconds:900,absolute_seconds:3600};
+function uploadHarness(limits,fileSize){
+  const nodes=new Map(),calls=[];
+  const element=id=>{if(!nodes.has(id))nodes.set(id,{id,textContent:'',innerHTML:'',hidden:false,disabled:false,files:[],querySelectorAll:()=>[],reportValidity:()=>true});return nodes.get(id);};
+  const button={disabled:false};element('upload-form').querySelector=()=>button;element('csv-file').files=[{name:'synthetic_test_only.csv',size:fileSize}];
+  class TestFormData{constructor(){this.entries=new Map();}set(name,value){this.entries.set(name,value);}}
+  const sandbox={document:{getElementById:element},window:{MarginGuardContext:Context},FormData:TestFormData,
+    fetch:async(url,options)=>{calls.push({url,options});return {ok:true,status:url.endsWith('/session')?200:201,json:async()=>url.endsWith('/session')?{csrf_token:'synthetic-test-only-token',limits}: {upload_id:'synthetic-pending',revision:'synthetic-revision',report:{currency:'AUD',summary:{row_count:84,product_count:1,store_count:1,series_count:1}},series:[],preview:[]}};}};
+  vm.createContext(sandbox);vm.runInContext(fs.readFileSync(root+'/static/js/business_upload.js','utf8'),sandbox);sandbox.window.MarginGuardUpload.attach({});
+  return {element,calls,button,upload:()=>element('upload-form').onsubmit({preventDefault(){}})};
+}
+test('upload capacity and expiry help use the server public profile values',()=>{
+  const details=Context.uploadLimitDetails(publicUploadLimits);
+  assert.equal(details.fileBytes,1048576);assert.match(details.uploadText,/1 MiB/);assert.match(details.uploadText,/10,000 rows/);assert.match(details.uploadText,/20 product-store/);
+  for(const text of ['10 minutes','15 minutes idle','1 hour total','restarts or sleeps','Closing a tab is not a deletion request'])assert.ok(details.expiryText.includes(text),text);
+});
+test('local upload profile remains different without hard-coded public limits',()=>{
+  const details=Context.uploadLimitDetails({file_bytes:5*1024*1024,rows:50000,series:100,pending_seconds:900,idle_seconds:1800,absolute_seconds:7200});
+  assert.match(details.uploadText,/5 MiB/);assert.match(details.uploadText,/50,000 rows/);assert.match(details.uploadText,/100 product-store/);assert.match(details.expiryText,/2 hours total/);
+  assert.doesNotMatch(Context.friendlyError({code:'file_too_large'}),/5 MiB/);assert.match(Context.friendlyError({code:'file_too_large'}),/shown beside Daily sales CSV/);
+});
+test('one byte above the server file limit is rejected before any CSV POST',async()=>{
+  const h=uploadHarness(publicUploadLimits,publicUploadLimits.file_bytes+1);await h.upload();
+  assert.deepEqual(h.calls.map(call=>call.url),['/api/business/session']);assert.match(h.element('upload-errors').innerHTML,/file-size limit shown/);assert.equal(h.button.disabled,false);
+  assert.match(h.element('upload-limits').textContent,/1 MiB/);assert.match(h.element('upload-expiry').textContent,/15 minutes idle/);
+});
+test('a file exactly at the reported limit reaches the existing upload endpoint',async()=>{
+  const h=uploadHarness(publicUploadLimits,publicUploadLimits.file_bytes);await h.upload();
+  assert.deepEqual(h.calls.map(call=>call.url),['/api/business/session','/api/business/uploads']);assert.equal(h.calls[1].options.method,'POST');assert.match(h.element('upload-status').textContent,/Review required/);assert.equal(h.button.disabled,false);
+});
+test('missing or invalid session limits fail closed instead of assuming a larger default',async()=>{
+  for(const limits of [undefined,{...publicUploadLimits,file_bytes:0},{...publicUploadLimits,rows:'10000'}]){
+    const h=uploadHarness(limits,100);await h.upload();assert.deepEqual(h.calls.map(call=>call.url),['/api/business/session']);assert.match(h.element('upload-errors').innerHTML,/Upload limits could not be loaded/);assert.equal(h.button.disabled,false);
+  }
+});

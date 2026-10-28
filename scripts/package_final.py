@@ -25,7 +25,7 @@ ROOT_FILES = (
     'currency.py', 'data_loader.py', 'finance.py', 'forecast.py',
     'inventory.py', 'market_api.py', 'market_service.py', 'phase2_inputs.py',
     'run_phase1.py', 'run_phase2.py', 'runtime_config.py', 'scenario.py',
-    'synthetic_demo.py',
+    'synthetic_demo.py', 'upload_review.py',
     'gunicorn.conf.py', 'wsgi.py', 'requirements.txt', 'requirements-abs.txt',
     'requirements-production.txt', '.python-version', 'render.yaml',
     '.gitignore', 'start.command',
@@ -49,14 +49,15 @@ TEST_FILES = (
     'test_final_package.py', 'test_business_context.py',
     'test_business_ui.py', 'test_restructure_b.py', 'test_synthetic_demo.py',
     'business_context.test.js', 'test_uat_templates.py', 'uat_business_ui.test.js',
+    'test_upload_capacity.py', 'test_upload_admission.py', 'test_upload_review.py',
 )
 TEMPLATE_FILES = (
-    '_business_upload.html', 'base.html', 'dashboard.html', 'forecasting.html',
+    '_business_upload.html', '_upload_review.html', 'base.html', 'dashboard.html', 'forecasting.html',
     'inventory.html', 'market.html', 'scenarios.html',
 )
 STATIC_FILES = (
     'css/style.css', 'css/market.css', 'js/main.js', 'js/market.js',
-    'js/business_upload.js', 'js/business_context.js',
+    'js/business_upload.js', 'js/business_context.js', 'js/upload_review.js',
 )
 SCRIPT_FILES = (
     'audit_m5.py', 'prepare_m5.py', 'prepare_abs.py',
@@ -83,7 +84,7 @@ REQUIRED_FILES = (
     'app.py', 'forecast.py', 'inventory.py', 'finance.py', 'scenario.py',
     'business_csv.py', 'business_forecast.py', 'business_api.py',
     'business_store.py', 'business_service.py', 'business_worker.py',
-    'currency.py', 'runtime_config.py', 'synthetic_demo.py', 'wsgi.py', 'gunicorn.conf.py',
+    'currency.py', 'runtime_config.py', 'synthetic_demo.py', 'upload_review.py', 'wsgi.py', 'gunicorn.conf.py',
     'requirements.txt', 'requirements-production.txt', 'render.yaml',
     'README.md', 'PHASE5A_REPORT.md', 'PHASE5B_REPORT.md', 'PHASE5C_REPORT.md',
     'RESTRUCTURE_B_REPORT.md', 'FINAL_QA_REPORT.md', 'DEPLOYMENT_REPORT.md',

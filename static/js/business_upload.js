@@ -16,9 +16,15 @@ window.MarginGuardUpload = (function () {
     }
     return data;
   }
+  function showLimits(limits) {
+    const details=window.MarginGuardContext.uploadLimitDetails(limits);
+    if(el('upload-limits'))el('upload-limits').textContent=details.uploadText;
+    if(el('upload-expiry'))el('upload-expiry').textContent=details.expiryText;
+    return details;
+  }
   async function getSession() {
     if(session) return session;
-    if(!sessionPromise) sessionPromise=response('/api/business/session',{}).then(value=>(session=value)).finally(()=>sessionPromise=null);
+    if(!sessionPromise) sessionPromise=response('/api/business/session',{}).then(value=>{showLimits(value.limits);session=value;return value;}).finally(()=>sessionPromise=null);
     return sessionPromise;
   }
   async function request(path, {method='GET',json,form,signal}={}) {
@@ -73,10 +79,13 @@ window.MarginGuardUpload = (function () {
     if(form)form.onsubmit=async event=>{
       event.preventDefault();if(!form.reportValidity())return;
       const file=el('csv-file').files[0];if(!file)return;
-      if(file.size>5*1024*1024){showError(Object.assign(Error('CSV exceeds 5 MiB.'),{code:'file_too_large'}));return;}
       const button=form.querySelector('button[type=submit]');button.disabled=true;el('upload-errors').hidden=true;el('upload-report').hidden=true;pending=null;el('upload-status').textContent='Checking your sales records…';
-      const data=new FormData(form);data.set('sales_basis','gross_units');data.set('authorized','true');
-      try {showReport(await request('/api/business/uploads',{method:'POST',form:data}));el('upload-status').textContent='Review required. No new dataset is active yet.';el('csv-file').value='';}
+      try {
+        const current=await getSession(),limits=showLimits(current.limits);
+        if(file.size>limits.fileBytes)throw Object.assign(Error('CSV exceeds the current file-size limit.'),{code:'file_too_large'});
+        const data=new FormData(form);data.set('sales_basis','gross_units');data.set('authorized','true');
+        showReport(await request('/api/business/uploads',{method:'POST',form:data}));el('upload-status').textContent='Review required. No new dataset is active yet.';el('csv-file').value='';
+      }
       catch(error){showError(error);el('upload-status').textContent='Validation failed; no dataset confirmed.';}
       finally{button.disabled=false;}
     };

@@ -6,6 +6,7 @@ import base64
 from datetime import date
 from decimal import Decimal
 import json
+import os
 import secrets
 import sys
 
@@ -42,12 +43,22 @@ def decode_dataset(data):
                 as_of_date=date.fromisoformat(data['as_of_date']), groups=groups)
 
 
-def perform(action, payload):
+def perform(action, payload, limits=None):
+    limits = limits or {}
     if action == 'parse':
         from business_csv import parse_business_csv
         dataset = parse_business_csv(base64.b64decode(payload['content'], validate=True),
                                      payload['meta']['currency'], sales_basis=payload['meta']['sales_basis'],
                                      as_of_date=date.fromisoformat(payload['as_of_date']))
+        # The existing parser remains unchanged. The public HTTP/file cap bounds
+        # its work before these stricter hosting-profile checks are evaluated.
+        summary = dataset['report']['summary']
+        if summary['row_count'] > limits.get('max_rows', 50000):
+            raise CapacityError('too_many_rows', 'This temporary service accepts at most %d rows. Split the file and try again.'
+                                % limits['max_rows'])
+        if summary['series_count'] > limits.get('max_series', 100):
+            raise CapacityError('too_many_series', 'This temporary service accepts at most %d product and store combinations. Select fewer combinations.'
+                                % limits['max_series'])
         series = []
         for report in dataset['report']['series']:
             series.append(dict(report, series_id=secrets.token_hex(16),
@@ -79,6 +90,12 @@ def perform(action, payload):
     raise ValueError('Unsupported worker operation.')
 
 
+class CapacityError(ValueError):
+    def __init__(self, code, message):
+        self.code = code
+        super().__init__(message)
+
+
 def apply_resource_limits():
     """Bound workers on production Linux; macOS still has wall/CPU limits.
 
@@ -89,20 +106,49 @@ def apply_resource_limits():
         import resource
         resource.setrlimit(resource.RLIMIT_CPU, (6, 6))
         if sys.platform.startswith('linux'):
-            memory = 384 * 1024 * 1024
+            memory = int(os.environ.get('MARGINGUARD_WORKER_MEMORY_BYTES', 384 * 1024 * 1024))
+            if not 32 * 1024 * 1024 <= memory <= 384 * 1024 * 1024:
+                raise ValueError('Invalid worker memory policy.')
             resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
     except (ImportError, OSError, ValueError):
-        pass
+        if sys.platform.startswith('linux'):
+            # The public hosting budget depends on this limit. Never continue
+            # with an unbounded Linux process if the kernel rejects the policy.
+            raise RuntimeError('Required processing limits are unavailable.') from None
+
+
+def encode_output(output, maximum):
+    """Bound the fixed worker's pipe output before returning it to Flask.
+
+    Input, row/series, and address-space limits bound creation of this object.
+    This explicit wire cap also stops oversized successful/error JSON responses.
+    """
+    encoded = json.dumps(output, allow_nan=False, separators=(',', ':')).encode('utf-8')
+    if len(encoded) > maximum:
+        encoded = b'{"ok":false,"code":"normalized_too_large","error":"Processed data exceeds the temporary limit. Select fewer rows or products.","status":413}'
+    return encoded
 
 
 def main():
     # CPU bound survives a parent crash; the caller also enforces wall time.
-    apply_resource_limits()
+    try:
+        apply_resource_limits()
+    except RuntimeError:
+        print('{"ok":false,"code":"processing_limits_unavailable","error":"Private processing is temporarily unavailable.","status":503}')
+        return
     from business_csv import BusinessCSVError
     from business_forecast import BusinessForecastError
     try:
         message = json.load(sys.stdin)
-        output = {'ok': True, 'result': serial(perform(message['action'], message['payload']))}
+        limits = message.get('limits', {})
+        result = serial(perform(message['action'], message['payload'], limits))
+        if message['action'] in ('parse', 'confirm'):
+            size = len(json.dumps(result, allow_nan=False, separators=(',', ':')).encode('utf-8'))
+            if size > limits.get('max_dataset_bytes', 20 * 1024 * 1024):
+                raise CapacityError('normalized_too_large', 'Processed data exceeds the temporary limit. Select fewer rows or products.')
+        output = {'ok': True, 'result': result}
+    except CapacityError as error:
+        output = {'ok': False, 'code': error.code, 'error': str(error), 'status': 413}
     except BusinessCSVError as error:
         output = {'ok': False, 'code': error.code, 'error': str(error),
                   'status': 422, 'issues': error.errors, 'error_count': error.error_count}
@@ -114,7 +160,8 @@ def main():
     except Exception:
         output = {'ok': False, 'code': 'processing_failed',
                   'error': 'The private data could not be processed.', 'status': 503}
-    json.dump(output, sys.stdout, allow_nan=False, separators=(',', ':'))
+    maximum = int(os.environ.get('MARGINGUARD_WORKER_MAX_OUTPUT_BYTES', 25 * 1024 * 1024))
+    sys.stdout.buffer.write(encode_output(output, maximum))
 
 
 if __name__ == '__main__':

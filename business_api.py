@@ -11,6 +11,7 @@ from werkzeug.exceptions import HTTPException
 from business_csv import MAX_FILE_BYTES
 from business_store import BusinessError, BusinessStore, owner_key
 import business_service as service
+from upload_review import validate_review_bootstrap, review_session_authorized, grant_review_session
 
 
 def get_business_store():
@@ -26,7 +27,12 @@ def get_business_store():
                               max_bytes=config.get('BUSINESS_MAX_STORAGE_BYTES', 500 * 1024 * 1024),
                               max_dataset_bytes=config.get('BUSINESS_MAX_DATASET_BYTES', 20 * 1024 * 1024),
                               max_jobs=config.get('BUSINESS_MAX_JOBS', 2),
-                              max_sessions=config.get('BUSINESS_MAX_SESSIONS', 100))
+                              max_sessions=config.get('BUSINESS_MAX_SESSIONS', 100),
+                              max_file_bytes=config.get('BUSINESS_MAX_FILE_BYTES', MAX_FILE_BYTES),
+                              max_rows=config.get('BUSINESS_MAX_ROWS', 50000),
+                              max_series=config.get('BUSINESS_MAX_SERIES', 100),
+                              worker_memory_bytes=config.get('BUSINESS_WORKER_MEMORY_BYTES', 384 * 1024 * 1024),
+                              max_worker_output_bytes=config.get('BUSINESS_WORKER_MAX_OUTPUT_BYTES', 25 * 1024 * 1024))
         current_app.extensions['business_store'] = store
         if not current_app.testing:
             store.start_cleanup(config.get('BUSINESS_CLEANUP_INTERVAL', 300))
@@ -75,15 +81,20 @@ def create_business_blueprint():
     @bp.before_request
     def guard():
         # Limits are set before accessing form/json streams, not after parsing.
-        request.max_content_length = 6 * 1024 * 1024 if request.endpoint == 'business.upload_csv' else 32768
+        file_limit = current_app.config.get('BUSINESS_MAX_FILE_BYTES', MAX_FILE_BYTES)
+        upload_limit = file_limit + (128 * 1024 if current_app.config.get('PUBLIC_MODE') else 1024 * 1024)
+        request.max_content_length = upload_limit if request.endpoint == 'business.upload_csv' else 32768
         # MultipartDecoder also buffers file chunks (normally 64 KiB). Keep its
         # buffer above that size, then enforce our smaller metadata budget below.
         request.max_form_memory_size = 128 * 1024
         request.max_form_parts = 8
         if request.endpoint == 'business.template_csv':
             return None
+        g.business_review_bootstrap = False
         if not current_app.config.get('ENABLE_BUSINESS_UPLOAD', False):
-            raise BusinessError('uploads_disabled', 'Business uploads are disabled in this environment.', 503)
+            g.business_review_bootstrap = validate_review_bootstrap()
+            if not g.business_review_bootstrap and not review_session_authorized():
+                raise BusinessError('uploads_disabled', 'Business uploads are disabled in this environment.', 503)
         if not current_app.secret_key:
             raise BusinessError('session_unconfigured', 'Private sessions are not configured.', 503)
         origin = request.headers.get('Origin')
@@ -92,6 +103,16 @@ def create_business_blueprint():
         if request.headers.get('Sec-Fetch-Site') not in (None, 'same-origin', 'none'):
             raise BusinessError('origin_rejected', 'Only same-origin business requests are accepted.', 403)
         store = get_business_store()
+        # Shared SQLite admission runs before Flask parses multipart/JSON bodies.
+        # New cookies cannot bypass these limits, unlike per-owner limits alone.
+        if current_app.config.get('PUBLIC_MODE'):
+            store.global_rate('requests', 240, 60)
+            if request.endpoint == 'business.browser_session' and request.method == 'GET':
+                store.global_rate('session_bootstrap', 20, 60)
+            if request.endpoint == 'business.upload_csv':
+                store.global_rate('uploads', 12, 60)
+            if request.endpoint in ('business.confirm_upload', 'business.inventory_calculation', 'business.scenario_calculation'):
+                store.global_rate('calculations', 60, 60)
         store.cleanup()
         g.business_store = store
         token = session.get('business_owner')
@@ -158,15 +179,21 @@ def create_business_blueprint():
             except BusinessError:
                 pass
         if info is None:
+            # A reviewed owner can expire or be deleted after the guard check.
+            # Only a fresh key exchange may create an owner in controlled mode.
+            if not current_app.config.get('ENABLE_BUSINESS_UPLOAD', False) and not g.get('business_review_bootstrap'):
+                raise BusinessError('session_expired', 'The temporary test session expired. Re-enter the review key to start again.', 401)
             token, csrf, expires = store.create_session()
             session.clear()
             session['business_owner'] = token
             session.permanent = True
             info = store.authenticate(owner_key(token))
+        if g.get('business_review_bootstrap'):
+            grant_review_session(token, info['expires'])
         return jsonify(csrf_token=info['csrf'],
                        expires_at=min(store.clock() + store.idle_ttl, info['expires']),
                        absolute_expires_at=info['expires'], active_dataset=store.active(owner_key(token)),
-                       limits={'file_bytes': MAX_FILE_BYTES, 'rows': 50000, 'series': 100,
+                       limits={'file_bytes': store.max_file_bytes, 'rows': store.max_rows, 'series': store.max_series,
                                'minimum_history_days': 42, 'recommended_history_days': 84,
                                'pending_seconds': store.pending_ttl, 'idle_seconds': store.idle_ttl,
                                'absolute_seconds': store.absolute_ttl})
@@ -188,7 +215,7 @@ def create_business_blueprint():
         if len(filename) > 255 or '\x00' in filename or filename.rsplit('.', 1)[-1].lower() != 'csv':
             raise BusinessError('unsupported_file_type', 'Choose a .csv file.', 415)
         try:
-            content = file.stream.read(MAX_FILE_BYTES + 1)
+            content = file.stream.read(g.business_store.max_file_bytes + 1)
         finally:
             file.close()
         result = service.upload(g.business_store, g.business_owner, content, request.form.to_dict(), _timeout())

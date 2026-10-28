@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
-  "audit_date": "2026-10-28",
-  "frozen_at_utc": "2026-10-28T11:35:24.297936+00:00",
-  "scope": "post_deployment_uat_part_a_synthetic_and_abs_uploads_disabled",
+  "audit_date": "2026-10-29",
+  "frozen_at_utc": "2026-10-28T12:41:45.457522+00:00",
+  "scope": "post_deployment_uat_capacity_review_and_public_upload_disabled",
   "source": "current_project_explicit_final_package_allowlist",
-  "file_count": 113,
-  "total_bytes": 3702740,
+  "file_count": 119,
+  "total_bytes": 3769234,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -143,8 +143,8 @@
     },
     {
       "path": "POST_DEPLOYMENT_UAT_REPORT.md",
-      "size_bytes": 4146,
-      "sha256": "72e0513e459cdd4e4d9d7b1836aa0ae8d7b5e4cac96e8e92c254b37db0492d1b",
+      "size_bytes": 8779,
+      "sha256": "0f8aa3a640aa08fa4bbf6cf64a9dbd8fd92b0e56cbd3603fd95dcae397739622",
       "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -164,8 +164,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 23737,
-      "sha256": "356affd0764c00e1a532958b472ac8dc6ba437c23a657960f29ae1a7601c1b4a",
+      "size_bytes": 24996,
+      "sha256": "07378c048eeb8e85bc474a133a7412313ce33b43b1d760158967726b15eaa1bc",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -206,15 +206,15 @@
     },
     {
       "path": "app.py",
-      "size_bytes": 9197,
-      "sha256": "1af46fe966c27293873c54c074f7fb83ca27bc87a902aadd8279e4d9fecbe946",
+      "size_bytes": 9910,
+      "sha256": "c0692648828685620ce2d2abf96dc273fbc891ad17c84a27ef7bf910492e3e6c",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "business_api.py",
-      "size_bytes": 11524,
-      "sha256": "29589f02a5270580bef001aed51390a36674b8c764e9fcfce6aea176b6eb7262",
+      "size_bytes": 13795,
+      "sha256": "e91308517c2cdbacbbc71c2429c09c3acdc6625ca894a4d8d6331660dc9d58d8",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -234,22 +234,22 @@
     },
     {
       "path": "business_service.py",
-      "size_bytes": 13732,
-      "sha256": "8368e2045ebc678e062b383934ff4d9527dce5cde62cfcce0ca4a1b539d76e02",
+      "size_bytes": 15314,
+      "sha256": "c06f60c908f077fab61bd9da38bf3ffaf1feb992acbad428ed15abc14cc7725b",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "business_store.py",
-      "size_bytes": 13272,
-      "sha256": "84b90d0556336bfa7f22f14ca558cf46e473dfa84db7882f39b63313ea3d6a2d",
+      "size_bytes": 15465,
+      "sha256": "7b14e06cbf04f21ff63495e402a723c2b5775222fec0282db1277acb18bc68b9",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "business_worker.py",
-      "size_bytes": 5585,
-      "sha256": "29fcaba70df98b7bd3bcf1dcb1326d31b25a652766bad7e08d0b7281a1bbc17d",
+      "size_bytes": 8380,
+      "sha256": "f1fb7256cba8288c516995760152ad860f7911735de6f94466f3db020d96256b",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -325,7 +325,7 @@
     },
     {
       "path": "deployment_files.json",
-      "size_bytes": 36063,
+      "size_bytes": 37946,
       "sha256": null,
       "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
       "review_status": "reviewed_deployment_candidate"
@@ -451,8 +451,8 @@
     },
     {
       "path": "runtime_config.py",
-      "size_bytes": 2793,
-      "sha256": "bb30f6f6a572ddacc50c67ff991bf706a686723a05ad6f7b68ec3f146f174dd7",
+      "size_bytes": 4320,
+      "sha256": "d3bc5dea18b7e71ce18d0a88e09a061a178ed1c71d177e490a5c4e3a099028f6",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -500,8 +500,8 @@
     },
     {
       "path": "scripts/package_final.py",
-      "size_bytes": 12272,
-      "sha256": "602b81589e9424323c02d7eb495591ff30ab66402dd3678d443b1ef083409642",
+      "size_bytes": 12442,
+      "sha256": "c8f2aa854430d2225bbaaf453697c5da21e4cd00244dbd9d0e4eb825ba380def",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -542,15 +542,15 @@
     },
     {
       "path": "static/js/business_context.js",
-      "size_bytes": 11446,
-      "sha256": "145960768466af6450bffb824fab08a1e7e8cecb43c140eefc2020812dd08809",
+      "size_bytes": 12889,
+      "sha256": "cea3fee0934a75d354881d4d78f5e21dc5345d279a527547656116557a29c5b8",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "static/js/business_upload.js",
-      "size_bytes": 9491,
-      "sha256": "08ed0e65955c2260409485eff5dea1a96bdf36f0f0c3b07f6ce57604c4d731f2",
+      "size_bytes": 9925,
+      "sha256": "dc1efd6a453986b89a5b0f2a46f9a94d101562c038afd352aace83c672f6b1c3",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -569,6 +569,13 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "static/js/upload_review.js",
+      "size_bytes": 1588,
+      "sha256": "0254b2c1c7aa9bf37e800ab930483f6ab5bab2edd151e6d4b17db0beaf1a0a3b",
+      "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "synthetic_demo.py",
       "size_bytes": 13372,
       "sha256": "74d7919f78511005b6c9238936e43ea14b96cb1a8b295dee013abfc7a80d8562",
@@ -577,15 +584,22 @@
     },
     {
       "path": "templates/_business_upload.html",
-      "size_bytes": 3324,
-      "sha256": "68c90b766121bd590a8ac6ca4ad3bc28eb985e61d569569b54d19608b2aed3ca",
+      "size_bytes": 3436,
+      "sha256": "6115b85f8a75ee2508f290d69ed7201b745f740d6a0c7ceecc1f1f5a4ae4ee9e",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "templates/_upload_review.html",
+      "size_bytes": 1037,
+      "sha256": "24477853d5805ffc5bcae9773711cbb8d9819ecbf7ca8fa2235c67f1674f59dc",
+      "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "templates/base.html",
-      "size_bytes": 13363,
-      "sha256": "279d288b59fb60d0f03a57120355dc7b63fca0b861291fa1985e3711888f10a1",
+      "size_bytes": 13867,
+      "sha256": "1a63e8f55de43ed240e54c4bff79e11c48064676a61eefd4d6a818c94e35edbd",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -773,9 +787,30 @@
     },
     {
       "path": "tests/test_uat_templates.py",
-      "size_bytes": 5240,
-      "sha256": "398254771e9ee4f0239d86e78d710417d4d7f1c6b16795925b17da48026d3031",
+      "size_bytes": 5545,
+      "sha256": "0b49e88e33d35eae1cce41b42cba5afceba852e373916de3af7790a7d85cf3cb",
       "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_upload_admission.py",
+      "size_bytes": 3794,
+      "sha256": "9d9ac2e98c98f1bd20609efe2e35719a34047c45d9dffac010569391fb678d00",
+      "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_upload_capacity.py",
+      "size_bytes": 11250,
+      "sha256": "f4a2f9e2718be9fd5ce2906810fd212e0bd78fa43c704ee79cf0e3b1025f23d3",
+      "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_upload_review.py",
+      "size_bytes": 15269,
+      "sha256": "3e0b09cd4121a5a6eb439e9ccf59e10b2bc630e7890c9e02afeb0f21ddd04221",
+      "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -787,9 +822,16 @@
     },
     {
       "path": "tests/uat_business_ui.test.js",
-      "size_bytes": 8067,
-      "sha256": "1d316fae91c106cd798fb624f6e47aa2b819719f7b4313995f4e145cbbc50c6f",
+      "size_bytes": 12023,
+      "sha256": "6069b40fbfe698f4e98e2ce5efbf9417d5fdc477ab386347e36958603c517e6a",
       "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "upload_review.py",
+      "size_bytes": 7776,
+      "sha256": "d313a032de4346e1b1e65dc1595197e80ce27eb38ba9fc3bf4dcd58d98ae7967",
+      "reason": "Reviewed capacity control, disabled acceptance gate, or synthetic tests",
       "review_status": "reviewed_deployment_candidate"
     },
     {

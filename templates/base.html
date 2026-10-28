@@ -12,6 +12,7 @@
   <script defer src="{{ url_for('static', filename='js/business_context.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/business_upload.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% if upload_review_entry and not upload_review_active %}<script defer src="{{ url_for('static', filename='js/upload_review.js') }}"></script>{% endif %}
   {% endif %}
 </head>
 {% set business_pages = [('dashboard','/','Business Overview','Overview'),('forecasting','/forecasting','Demand Forecasting','Forecast'),('inventory','/inventory','Inventory & Risk','Inventory'),('scenarios','/scenarios','Financial Decision Lab','Decision Lab')] %}
@@ -69,6 +70,8 @@
         {% endif %}
       </section>
       <details class="draft-details"><summary>About saved input drafts</summary><div id="draft-status" class="note" role="status">Assumption drafts stay in this browser tab and are isolated by data source, product, dates and currency. They are not a business account.</div></details>
+      {% if upload_review_active %}<p class="alert warning" id="upload-review-active">Controlled acceptance test only · Public uploads remain closed. Use synthetic CSV files; temporary review access expires automatically.</p>{% endif %}
+      {% if upload_review_entry and not upload_review_active %}{% include '_upload_review.html' %}{% endif %}
       {% if page == 'dashboard' %}{% include '_business_upload.html' %}{% endif %}
       <div id="business-dataset-actions" class="dataset-actions" hidden><span id="dataset-status"></span><button type="button" id="delete-business-data" class="secondary">Delete uploaded data</button><a class="text-link" href="/?mode=business&upload=1">Upload another CSV</a></div>
       <div id="delete-confirmation" class="alert warning" hidden><p>Delete this temporary dataset and its analysis? Related assumption drafts will be cleared. This cannot be restored.</p><button type="button" id="confirm-delete" class="primary">Confirm delete</button><button type="button" id="cancel-delete" class="secondary">Cancel</button></div>

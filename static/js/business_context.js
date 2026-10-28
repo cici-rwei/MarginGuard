@@ -43,8 +43,8 @@
   function friendlyError(error) {
     const guidance={
       uploads_disabled:'Analyse My Business is temporarily unavailable. You can use Synthetic Demo while private uploads are being checked.',
-      file_too_large:'Choose a CSV no larger than 5 MiB. Reduce the number of products or dates, then upload again.',
-      http_413:'This upload is too large. Choose one CSV no larger than 5 MiB and try again.',
+      file_too_large:'Choose a CSV within the file-size limit shown beside Daily sales CSV. Reduce the number of products or dates, then upload again.',
+      http_413:'This upload is too large. Choose one CSV within the displayed upload limits and try again.',
       normalized_too_large:'This dataset is too large to analyse here. Include fewer products or a shorter history, keeping at least 42 complete days per selection.',
       unsupported_file_type:'Choose a .csv file saved as UTF-8. Excel workbooks and other file types are not accepted.',
       session_required:'Start a temporary session from Analyse My Business, then upload your CSV.',
@@ -77,6 +77,16 @@
     const message=businessText(error?.message||error||'The request could not be completed.');
     if(/must be (?:finite|numeric|a whole number)|between 0|decimal places|must be greater than zero/i.test(message))return message+' Correct this input and run the calculation again.';
     return message;
+  }
+  function uploadLimitDetails(limits) {
+    const names=['file_bytes','rows','series','pending_seconds','idle_seconds','absolute_seconds'];
+    if(!limits||names.some(name=>!Number.isSafeInteger(limits[name])||limits[name]<=0))throw Error('Upload limits could not be loaded. Reload Analyse My Business before choosing a file.');
+    const format=value=>value.toLocaleString('en-US',{maximumFractionDigits:2});
+    const size=limits.file_bytes>=1048576?format(limits.file_bytes/1048576)+' MiB':limits.file_bytes>=1024?format(limits.file_bytes/1024)+' KiB':format(limits.file_bytes)+' bytes';
+    const duration=seconds=>seconds%3600===0?format(seconds/3600)+' '+(seconds===3600?'hour':'hours'):seconds%60===0?format(seconds/60)+' '+(seconds===60?'minute':'minutes'):format(seconds)+' seconds';
+    return {fileBytes:limits.file_bytes,
+      uploadText:'UTF-8 / UTF-8 BOM · '+size+' · '+format(limits.rows)+' rows · '+format(limits.series)+' product-store combinations',
+      expiryText:'Pending uploads expire after '+duration(limits.pending_seconds)+'; sessions expire after '+duration(limits.idle_seconds)+' idle or '+duration(limits.absolute_seconds)+' total, whichever comes first. Data may disappear earlier if the service restarts or sleeps. Closing a tab is not a deletion request. Use Delete uploaded data to remove a dataset; there is no account recovery.'};
   }
   function assumptionValue(name,value) {
     if(value===undefined||value===null||value==='')return 'Not entered';
@@ -143,5 +153,5 @@
       clearDataset:id=>clearMatching(values=>values[0]==='user_csv'&&values[1]===id),
       clearUploads:()=>clearMatching(values=>values[0]==='user_csv')};
   }
-  return {create,key,sanitize,fields,fieldLabel,businessText,friendlyError,assumptionValue,assumptionChanges};
+  return {create,key,sanitize,fields,fieldLabel,businessText,friendlyError,uploadLimitDetails,assumptionValue,assumptionChanges};
 });

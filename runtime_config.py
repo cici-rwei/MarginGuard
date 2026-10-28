@@ -7,6 +7,32 @@ from pathlib import Path
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
+# Capacity policy for the existing anonymous service, not a feature-enable flag.
+# These limits are server-controlled; untrusted requests cannot raise them.
+LOCAL_UPLOAD_LIMITS = {
+    'BUSINESS_MAX_FILE_BYTES': 5 * 1024 * 1024,
+    'BUSINESS_MAX_ROWS': 50000,
+    'BUSINESS_MAX_SERIES': 100,
+    'BUSINESS_MAX_DATASET_BYTES': 20 * 1024 * 1024,
+    'BUSINESS_MAX_STORAGE_BYTES': 500 * 1024 * 1024,
+    'BUSINESS_MAX_JOBS': 2,
+    'BUSINESS_MAX_SESSIONS': 100,
+    'BUSINESS_WORKER_MEMORY_BYTES': 384 * 1024 * 1024,
+    'BUSINESS_WORKER_MAX_OUTPUT_BYTES': 25 * 1024 * 1024,
+}
+PUBLIC_UPLOAD_LIMITS = {
+    'BUSINESS_MAX_FILE_BYTES': 1024 * 1024,
+    'BUSINESS_MAX_ROWS': 10000,
+    'BUSINESS_MAX_SERIES': 20,
+    'BUSINESS_MAX_DATASET_BYTES': 2 * 1024 * 1024,
+    'BUSINESS_MAX_STORAGE_BYTES': 16 * 1024 * 1024,
+    'BUSINESS_MAX_JOBS': 1,
+    'BUSINESS_MAX_SESSIONS': 20,
+    'BUSINESS_WORKER_MEMORY_BYTES': 128 * 1024 * 1024,
+    'BUSINESS_WORKER_MAX_OUTPUT_BYTES': 2 * 1024 * 1024 + 64 * 1024,
+}
+
+
 def env_bool(name, default=False):
     value = os.environ.get(name)
     if value is None:
@@ -18,6 +44,7 @@ def env_bool(name, default=False):
 
 def configure(app, overrides=None):
     public = (overrides or {}).get('PUBLIC_MODE', env_bool('MARGINGUARD_PUBLIC', False))
+    app.config.update(PUBLIC_UPLOAD_LIMITS if public else LOCAL_UPLOAD_LIMITS)
     app.config.update(
         PUBLIC_MODE=public,
         TRUST_REVERSE_PROXY=env_bool('TRUST_REVERSE_PROXY', False),
@@ -42,6 +69,13 @@ def configure(app, overrides=None):
     if overrides:
         app.config.update(overrides)
     if app.config['PUBLIC_MODE']:
+        # Tests/admin configuration may tighten the profile, but cannot enlarge
+        # the public budget. No unrestricted environment override is supported.
+        for key, ceiling in PUBLIC_UPLOAD_LIMITS.items():
+            value = app.config[key]
+            if type(value) is not int or value <= 0:
+                raise ValueError('Public upload capacity must use positive whole numbers.')
+            app.config[key] = min(value, ceiling)
         secret = app.config.get('SECRET_KEY')
         if not isinstance(secret, str) or len(secret) < 32:
             raise ValueError('Public mode requires MARGINGUARD_SECRET_KEY with at least 32 characters.')
