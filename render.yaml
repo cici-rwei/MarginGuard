@@ -6,6 +6,11 @@ services:
     plan: free
     region: singapore
     autoDeployTrigger: checksPass
+    # Root reports and the audit manifest do not change the running application.
+    buildFilter:
+      ignoredPaths:
+        - "*.md"
+        - "deployment_files.json"
     buildCommand: pip install -r requirements-production.txt
     startCommand: gunicorn -c gunicorn.conf.py wsgi:app
     healthCheckPath: /api/features

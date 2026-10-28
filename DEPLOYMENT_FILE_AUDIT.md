@@ -82,3 +82,7 @@ ABS 和合成样本作为只读仓库文件，不需要持久盘。Render 免费
 2. 提交推送后检查 GitHub CI，核实 Render 免费资源及 After CI Checks Pass 设置。
 3. 取得真实 HTTPS 后完成页面/API、静态资源、手机、关闭功能说明、Debug/错误脱敏和资源指标验证。
 4. 更新公网证据时同步刷新本清单。未取得真实地址与验收结果前，不能标记部署完成。
+
+## 首次上线后的部署配置核验
+
+首次110文件清单已提交为 `296ae9b11632cb8827dca9aaba81c305dd08598d` 并成功推送私有仓库；GitHub CI成功。Render免费服务已Live，实际地址为 https://marginguard-lkno.onrender.com 。后续仅增加构建过滤规则：根目录Markdown报告及 `deployment_files.json` 的单独变动不触发应用重启；代码、配置、ABS/合成数据仍参与构建。11项生产配置回归通过，核心算法及数据无修改。当前逐文件摘要以随提交更新的机器清单为准，前文首次冻结字节数是首次提交前的审计快照。完整公网结果见 `PUBLIC_DEPLOYMENT_REPORT.md`。

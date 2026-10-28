@@ -5,7 +5,7 @@
   "scope": "approved_synthetic_demo_and_abs_first_private_repository_commit_candidate",
   "source": "current_project_explicit_final_package_allowlist",
   "file_count": 110,
-  "total_bytes": 3645957,
+  "total_bytes": 3646804,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -73,8 +73,8 @@
     },
     {
       "path": "DEPLOYMENT_FILE_AUDIT.md",
-      "size_bytes": 9449,
-      "sha256": "2e4bc354a705b1ebd1f569cd39ef913e51b9b5ac61dd509f777d47cc3a26a1d1",
+      "size_bytes": 10125,
+      "sha256": "12b719da4fdcca79e1b765c4776f3ccb490a1af8651ef78860ea7f2bb0ebe773",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -318,7 +318,7 @@
     },
     {
       "path": "deployment_files.json",
-      "size_bytes": 35139,
+      "size_bytes": 35141,
       "sha256": null,
       "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
       "review_status": "reviewed_deployment_candidate"
@@ -402,8 +402,8 @@
     },
     {
       "path": "render.yaml",
-      "size_bytes": 839,
-      "sha256": "54862de27e8e7faf3e1f88444a80005615992f6d74be744433e57363640efeb7",
+      "size_bytes": 1008,
+      "sha256": "bae317a050cbd8451c151bbff7bfc96f8e7f0e45b22a6883a410c7f13be6770c",
       "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
       "review_status": "reviewed_deployment_candidate"
     },
