@@ -1,6 +1,6 @@
 # MarginGuard 首次部署文件审计
 
-审计日期：2026-10-28（Australia/Sydney）。状态：**本地部署候选已复核，等待首次 Git 暂存审查、CI 和 Render 公网验收**。本报告不代表网站已上线，GitHub/Render 的实际状态由 `PUBLIC_DEPLOYMENT_REPORT.md` 单独记录。
+审计日期：2026-10-28（Australia/Sydney）。状态：**首次冻结审计及最终上线复核均已完成**。下文保留首次冻结时的历史检查记录；最终 GitHub/Render 状态及公网证据见 `PUBLIC_DEPLOYMENT_REPORT.md`。
 
 ## 1. 结论与范围
 
@@ -86,3 +86,9 @@ ABS 和合成样本作为只读仓库文件，不需要持久盘。Render 免费
 ## 首次上线后的部署配置核验
 
 首次110文件清单已提交为 `296ae9b11632cb8827dca9aaba81c305dd08598d` 并成功推送私有仓库；GitHub CI成功。Render免费服务已Live，实际地址为 https://marginguard-lkno.onrender.com 。后续仅增加构建过滤规则：根目录Markdown报告及 `deployment_files.json` 的单独变动不触发应用重启；代码、配置、ABS/合成数据仍参与构建。11项生产配置回归通过，核心算法及数据无修改。当前逐文件摘要以随提交更新的机器清单为准，前文首次冻结字节数是首次提交前的审计快照。完整公网结果见 `PUBLIC_DEPLOYMENT_REPORT.md`。
+
+## 最终上线复核
+
+实际应用提交 `b626d078e65e261112eff292e7bef3221085dfc4`，Render Live；私有 GitHub CI 成功。提交内110路径与清单一致，109内容哈希/全部大小正确，28份受保护核心和数据哈希与基线一致；24个敏感路径忽略探针通过，两个可达提交未发现禁入路径。公网35项检查全部通过，并完成真实浏览器交互及手机检查，详见部署报告。
+
+两个旧的未跟踪脚本 `scripts/package_phase1.py`、`scripts/package_phase3.py` 可能漏排环境文件、数据库及 M5 派生结果，保持不提交、不执行；后续只使用 `scripts/package_final.py` 的明确白名单。最终报告与README更新后重新刷新机器清单。原始数据、核心算法、原ZIP均不改动。

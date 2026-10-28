@@ -4,10 +4,10 @@ MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运�
 
 当前提供两个工作空间：
 
-- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开部署候选使用独立的 **Synthetic Business Demo**。本地 `Analyse My Business` 通过临时匿名会话分析用户 CSV，公开上传保持关闭。流程为 **Upload → Validate → Select Product & Store → Forecast → Inventory → Financial Scenario → Decision Summary**。
+- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。本地 `Analyse My Business` 通过临时匿名会话分析用户 CSV，公开上传保持关闭。流程为 **Upload → Validate → Select Product & Store → Forecast → Inventory → Financial Scenario → Decision Summary**。
 - **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
 
-企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。公开部署的当前状态、真实网址和验证结果见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)；没有取得并验证 HTTPS 地址前不视为上线。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。
+企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。版本、功能开关及真实公网验收见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。
 
 ## 1. 在 Mac 上独立启动
 
@@ -201,9 +201,9 @@ python scripts/package_final.py
 
 排除：全部 M5 记录及预测、真实企业上传、临时数据库、密钥、日志、缓存、虚拟环境、研究大文件、旧 ZIP 和未审核文件。只允许明确合成或 ABS 截图。历史 Phase 1/3 打包脚本与归档仅保留原目录历史用途，不应用于当前最终交付。
 
-## 9. 生产运行与公开部署准备
+## 9. 生产运行与公开部署
 
-生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 目标是私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md) 为准；历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
+生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 使用私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md) 为准；历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
 
 用已安装的 Python 3.12.14 创建独立生产验证环境，再安装：
 
@@ -221,7 +221,7 @@ Gunicorn 默认监听 `0.0.0.0:8000`，由 `PORT` 调整；此命令是 WSGI 启
 | `MARGINGUARD_PUBLIC=true` | 开启公开环境约束，关闭 Debug，使用 Secure cookie |
 | `MARGINGUARD_SECRET_KEY` | 至少 32 字符的随机密钥，由部署平台注入，不写入仓库或报告 |
 | `ENABLE_BUSINESS_UPLOAD` | 公开配置默认 `false`；生产安全验收后才显式启用 |
-| `ENABLE_SYNTHETIC_DEMO` | 独立开关；Render 候选配置为 `true`，本地默认 `false` |
+| `ENABLE_SYNTHETIC_DEMO` | 独立开关；Render 已部署配置为 `true`，本地默认 `false` |
 | `ENABLE_M5_DEMO` | 公开配置默认 `false` |
 | `M5_PUBLIC_LICENSE_CONFIRMED` | 只有已核实实际展示/再分发权利才能设为 `true`；开关本身不授予许可 |
 | `MARGINGUARD_PRIVATE_DIR` | 仓库外的私有临时目录，不属于静态目录或公开挂载 |
@@ -239,7 +239,7 @@ ENABLE_SYNTHETIC_DEMO=true ENABLE_M5_DEMO=false ENABLE_BUSINESS_UPLOAD=false pyt
 
 打开 `http://127.0.0.1:5050/?mode=synthetic`。这是本地功能检查；公开环境仍须设置 `MARGINGUARD_PUBLIC=true`、由平台生成密钥并通过 HTTPS 验收。固定样本 API 为 `/api/demo/catalog`、`/api/demo/analysis`、`/api/demo/inventory`、`/api/demo/scenarios`，不接受客户端文件路径或自定义预测序列。
 
-后续更新先运行全部测试，按 `deployment_files.json` 审核并暂存必要文件，检查 `git diff --cached` 后再提交和推送。不得执行未经审计的 `git add .`。GitHub Actions 提供不含受限 M5/原 Excel 的 CI；Render 建议选择 **After CI Checks Pass**，实际是否开启以部署报告为准。回滚可恢复已验证的历史部署，或提交 `git revert` 经测试后推送；不要用强制推送覆盖历史。
+后续更新先运行全部测试，按 `deployment_files.json` 审核并暂存必要文件，检查 `git diff --cached` 后再提交和推送。不得执行未经审计的 `git add .`。GitHub Actions 提供不含受限 M5/原 Excel 的 CI；Render 已启用 **After CI Checks Pass**，第二次自动部署已验证。免费服务位于 Singapore；公网地址为 [MarginGuard Online](https://marginguard-lkno.onrender.com)。仅根目录 Markdown 与 `deployment_files.json` 变更受构建过滤规则排除，不重启应用；代码、依赖、数据和配置仍经 CI 后部署。回滚可恢复已验证的历史部署，或提交 `git revert` 经测试后推送；不要用强制推送覆盖历史。
 
 清理脚本可在与服务相同的系统用户和私有目录下执行：
 
