@@ -5,7 +5,7 @@
   "scope": "post_deployment_uat_capacity_review_and_public_upload_disabled",
   "source": "current_project_explicit_final_package_allowlist",
   "file_count": 119,
-  "total_bytes": 3782271,
+  "total_bytes": 3787303,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -143,8 +143,8 @@
     },
     {
       "path": "POST_DEPLOYMENT_UAT_REPORT.md",
-      "size_bytes": 17976,
-      "sha256": "38462f1d9b6df944012cabcf94874cc322a5594daacaba9f4481bbb607ca65a3",
+      "size_bytes": 21107,
+      "sha256": "f3b34e4ad1a9b6bd75ee818c5f47b4676d3cdda995d572b07d018b3fcbee8680",
       "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -164,8 +164,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 24996,
-      "sha256": "07378c048eeb8e85bc474a133a7412313ce33b43b1d760158967726b15eaa1bc",
+      "size_bytes": 26897,
+      "sha256": "255bac37e24868a0936d4bffb999be55b7ed07344117e9081ef8ce81739acc61",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },

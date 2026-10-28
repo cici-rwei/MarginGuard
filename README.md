@@ -4,10 +4,10 @@ MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运�
 
 当前提供两个工作空间：
 
-- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。本地 `Analyse My Business` 通过临时匿名会话分析用户 CSV，公开上传保持关闭。流程为 **Upload → Validate → Select Product & Store → Forecast → Inventory → Financial Scenario → Decision Summary**。
+- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。`Analyse My Business` 已正式开放受限临时CSV分析，通过匿名会话处理用户数据；无需注册，不提供长期保存。流程为 **Upload → Validate → Select Product & Store → Forecast → Inventory → Financial Scenario → Decision Summary**。
 - **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
 
-企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。版本、功能开关及真实公网验收见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。 本轮上线后体验优化和上传开放评估见 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，公开 CSV 在生产安全验收通过前保持关闭。
+企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)；当前版本、功能开关及最新公网验收以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。 本轮已完成受控安全检查及正式开放后的无凭证API、两套独立浏览器复验；公开CSV可用，详细通过项及未验证边界见该验收报告。
 
 ## 1. 在 Mac 上独立启动
 
@@ -67,6 +67,8 @@ Inventory → Decision Lab 提供 **Use inventory assumptions** 和 **Use sugges
 
 ## 4. 企业 CSV 与临时数据保护
 
+公网入口：[Analyse My Business](https://marginguard-lkno.onrender.com/?mode=business)。当前免费服务用于作品集展示和短期分析，不适合保存长期敏感商业数据。请保留自己的原始文件，不上传客户、支付或其他个人信息。
+
 必需列：`Date,Product,Store,Units Sold`；可选列：`Unit Price,Unit Cost`。使用 UTF-8 或 UTF-8 BOM，日期严格为 `YYYY-MM-DD`，每个商品—门店—日只能一行。
 
 - 负销量、非整数销量、重复键、非法日期、非法金额或标识会拒绝；重复行不会自动相加。
@@ -78,7 +80,7 @@ Inventory → Decision Lab 提供 **Use inventory assumptions** 和 **Use sugges
 
 容量限制按运行环境区分；公开配置更保守，实际上传面板以服务器返回的限制为准：
 
-| 项目 | 本地默认 | 公开环境保守配置（不代表上传已开放） |
+| 项目 | 本地默认 | 当前公开环境保守配置 |
 |---|---|---|
 | CSV | 5 MiB、50,000行、100组合 | 1 MiB、10,000行、20组合；历史跨度仍最多1,096天 |
 | 待确认数据 | 15分钟后过期 | 相同 |
@@ -181,12 +183,12 @@ PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-原有 193 项测试保持保留，新增上传、隔离、安全、币种、参数保留和打包测试。**最新执行数量、通过/跳过情况及具体环境统一见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)**，避免把历史阶段的 61/109/141 等数量误当作当前总数。
+本轮保留原302项Python测试逻辑和原22份测试目录文件，新增体验、容量、准入、受控验收及租约检查。完整本地Python **348/348**、Node **29/29**通过；GitHub不包含受限原始数据，对应19个方法未执行。最新具体环境及公网证据统一见 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)；[FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)为此前交付快照，不把历史61/109/141等数量当作当前总数。
 
 前端输入草稿有独立的 Node 测试；Node 仅用于开发测试，不是网页运行依赖。若本机已安装支持 `node:test` 的 Node，可执行：
 
 ```sh
-node --test tests/business_context.test.js
+node --test tests/business_context.test.js tests/uat_business_ui.test.js
 ```
 
 没有 M5 本地数据或原始 ABS 研究 Excel 时，对应集成测试会明确跳过；这不等于完成该数据的真实文件验证。合成测试只验证软件行为。五页实际浏览器交互及移动布局结果也单独记录在最终 QA，不以 HTTP 200 代替界面验收。
@@ -203,7 +205,7 @@ python scripts/package_final.py
 
 ## 9. 生产运行与公开部署
 
-生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 使用私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md) 为准；历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
+生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 使用私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准；首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
 
 用已安装的 Python 3.12.14 创建独立生产验证环境，再安装：
 
@@ -220,14 +222,16 @@ Gunicorn 默认监听 `0.0.0.0:8000`，由 `PORT` 调整；此命令是 WSGI 启
 |---|---|
 | `MARGINGUARD_PUBLIC=true` | 开启公开环境约束，关闭 Debug，使用 Secure cookie |
 | `MARGINGUARD_SECRET_KEY` | 至少 32 字符的随机密钥，由部署平台注入，不写入仓库或报告 |
-| `ENABLE_BUSINESS_UPLOAD` | 公开配置默认 `false`；生产安全验收后才显式启用 |
+| `ENABLE_BUSINESS_UPLOAD` | 应用公共模式默认仍为`false`；当前Render经受控验收后显式配置为`true` |
+| `ENABLE_BUSINESS_UPLOAD_REVIEW` | 正式公开配置为`false`；临时验收门禁已关闭 |
+| `MARGINGUARD_UPLOAD_REVIEW_KEY_SHA256` / `MARGINGUARD_UPLOAD_REVIEW_DEADLINE` | 正式公开配置分别为空和`0`；不遗留受控验收权限 |
 | `ENABLE_SYNTHETIC_DEMO` | 独立开关；Render 已部署配置为 `true`，本地默认 `false` |
 | `ENABLE_M5_DEMO` | 公开配置默认 `false` |
 | `M5_PUBLIC_LICENSE_CONFIRMED` | 只有已核实实际展示/再分发权利才能设为 `true`；开关本身不授予许可 |
 | `MARGINGUARD_PRIVATE_DIR` | 仓库外的私有临时目录，不属于静态目录或公开挂载 |
 | `TRUST_REVERSE_PROXY` | 仅在已确认可信 TLS 终止代理时启用 |
 
-默认 Render 配置开放合成经营演示与 ABS，关闭企业上传及 M5 数据接口。上传安全与 M5 许可是两个独立闸门。生产访问日志只记录状态与耗时，不记录 URL 查询、cookie、请求正文或企业销售明细。合成演示不创建上传会话或 SQLite，也不保存访问者的计算结果；输入草稿仅按来源隔离保存在当前标签页。公开部署使用免费单实例方案；服务可能休眠和冷启动，不承诺企业生产 SLA。
+当前Render配置开放合成经营演示、ABS及受限临时CSV分析，关闭M5数据接口和受控review门禁。上传安全与M5许可是两个独立闸门；开放用户CSV不授予M5公开使用许可。生产访问日志只记录状态与耗时，不记录 URL 查询、cookie、请求正文或企业销售明细。合成演示不创建上传会话或 SQLite，也不保存访问者的计算结果；输入草稿仅按来源隔离保存在当前标签页。公开部署使用免费单实例方案；服务可能休眠和冷启动，不承诺企业生产 SLA。
 
 合成演示固定读取 `examples/business_csv/synthetic_84_days.csv`，历史为 2024-01-01–2024-03-24，模拟预测区间为 2024-03-25–2024-04-07。此数据是人工构造的教学样本，不是真实企业交易，固定周模式产生的 MAE 不能证明真实泛化能力。币种上下文明确定义为 AUD，并作为参数传入现有财务引擎；不进行换汇。库存、售价、成本、采购及折扣增量均为可修改的演示假设，结果由现有 Python 引擎计算。
 
@@ -239,7 +243,7 @@ ENABLE_SYNTHETIC_DEMO=true ENABLE_M5_DEMO=false ENABLE_BUSINESS_UPLOAD=false pyt
 
 打开 `http://127.0.0.1:5050/?mode=synthetic`。这是本地功能检查；公开环境仍须设置 `MARGINGUARD_PUBLIC=true`、由平台生成密钥并通过 HTTPS 验收。固定样本 API 为 `/api/demo/catalog`、`/api/demo/analysis`、`/api/demo/inventory`、`/api/demo/scenarios`，不接受客户端文件路径或自定义预测序列。
 
-后续更新先运行全部测试，按 `deployment_files.json` 审核并暂存必要文件，检查 `git diff --cached` 后再提交和推送。不得执行未经审计的 `git add .`。GitHub Actions 提供不含受限 M5/原 Excel 的 CI；Render 已启用 **After CI Checks Pass**，第二次自动部署已验证。免费服务位于 Singapore；公网地址为 [MarginGuard Online](https://marginguard-lkno.onrender.com)。仅根目录 Markdown 与 `deployment_files.json` 变更受构建过滤规则排除，不重启应用；代码、依赖、数据和配置仍经 CI 后部署。回滚可恢复已验证的历史部署，或提交 `git revert` 经测试后推送；不要用强制推送覆盖历史。
+后续更新先运行全部测试，按 `deployment_files.json` 审核并暂存必要文件，检查 `git diff --cached` 后再提交和推送。不得执行未经审计的 `git add .`。GitHub Actions 提供不含受限 M5/原 Excel 的 CI；Render 已启用 **After CI Checks Pass**，第二次自动部署已验证。免费服务位于 Singapore；公网地址为 [MarginGuard Online](https://marginguard-lkno.onrender.com)。仅根目录 Markdown 与 `deployment_files.json` 变更受构建过滤规则排除，不重启应用；代码、依赖、数据和配置仍经 CI 后部署。出现上传安全问题时先关闭公开上传和review，保留Synthetic/ABS及当前容量、全局限流和租约修复。需要回滚时选择保留这些修复的版本，或提交 `git revert` 经测试后推送；不要恢复旧宽松配置后直接开放上传，也不要强制推送覆盖历史。
 
 清理脚本可在与服务相同的系统用户和私有目录下执行：
 
@@ -252,6 +256,8 @@ python scripts/cleanup_business_data.py --storage-root /absolute/private/directo
 
 ## 上线后验收与公开上传状态
 
-Part A体验优化已上线：手机策略卡片、明确的上传关闭状态、参数导入差异及业务语言帮助。公共容量限制和临时受控验收门禁已准备；**公开上传保持关闭，受控门禁也默认关闭**。启用受控验收前需用户批准；它只能交换既有匿名会话，不提供新的文件读取或计算接口。
+Part A体验优化已上线：手机策略卡片、按开关显示上传状态、参数导入差异及英文业务语言帮助。Part B已在同一Render HTTPS服务完成 **189/189** 项检查：受控125项＋正式公开无凭证64项，失败0，包括AUD/USD、隔离、删除、真实30分钟到期、服务重启、限流恢复及删除过程中的计算槽竞态。两套独立浏览器再次验证公开上传、预测、库存、财务与删除；390px手机视口已检查。
 
-门禁配置名称为 `ENABLE_BUSINESS_UPLOAD_REVIEW`、`MARGINGUARD_UPLOAD_REVIEW_KEY_SHA256`、`MARGINGUARD_UPLOAD_REVIEW_DEADLINE`。只存随机测试凭证的SHA-256摘要，原凭证不能写入Git、URL或日志；测试窗口最长2小时，签名授权还受owner存活、会话及门禁期限约束。配置不等于验收通过，当前状态和具体待测项以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准。
+公开提交 `091dd76bec16f071d3d489ce5299780570d39fb2` 已部署Live，正式开放**受限临时CSV分析**，不需要验收凭证。当前公共上限1 MiB、10,000行、20组合；待确认数据15分钟，匿名会话空闲30分钟或创建后2小时失效，以先到者为准。重启、休眠或部署可能使数据更早丢失，不能作为唯一备份。关闭标签页不是删除操作；请使用 Delete uploaded data 主动移除数据。
+
+受控门禁已经关闭，验收摘要清空、截止时间归零；公开入口无review key要求或review提示。浏览器实际遇到processing_busy时保留输入、明确提示并可重试成功；这不等于已测worker超时。已验证结果及未验证的Render总RSS、磁盘余量、云介质取证级清理、真实worker超时等边界见 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)。免费公开服务仅是作品集和短期分析工具，不适合长期保存敏感数据，也不承诺企业SLA。
