@@ -23,6 +23,13 @@ services:
         generateValue: true
       - key: ENABLE_BUSINESS_UPLOAD
         value: "false"
+      # Approved temporary synthetic-only acceptance; public uploads stay closed.
+      - key: ENABLE_BUSINESS_UPLOAD_REVIEW
+        value: "true"
+      - key: MARGINGUARD_UPLOAD_REVIEW_KEY_SHA256
+        value: "52f75743a2d677ccd5203c5da4175a8b2f08dcff42da641f7a27896f523b75e3"
+      - key: MARGINGUARD_UPLOAD_REVIEW_DEADLINE
+        value: "1793201879"
       - key: ENABLE_M5_DEMO
         value: "false"
       - key: ENABLE_SYNTHETIC_DEMO

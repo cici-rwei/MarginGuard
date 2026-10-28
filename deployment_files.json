@@ -5,7 +5,7 @@
   "scope": "post_deployment_uat_capacity_review_and_public_upload_disabled",
   "source": "current_project_explicit_final_package_allowlist",
   "file_count": 119,
-  "total_bytes": 3769234,
+  "total_bytes": 3769589,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -409,8 +409,8 @@
     },
     {
       "path": "render.yaml",
-      "size_bytes": 1008,
-      "sha256": "bae317a050cbd8451c151bbff7bfc96f8e7f0e45b22a6883a410c7f13be6770c",
+      "size_bytes": 1363,
+      "sha256": "9b278cf37e2fe62bff330c2d822bbf57d7293735a7a861edb8741b2dfb1828eb",
       "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
       "review_status": "reviewed_deployment_candidate"
     },
