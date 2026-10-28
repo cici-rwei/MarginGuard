@@ -1,0 +1,38 @@
+__pycache__/
+*.pyc
+data/raw/
+data/processed_sales*
+data/forecast_results.json
+data/forecast_results_future.json
+data/phase2_demo.json
+data/source_audit.json
+# Some earlier local downloads also live directly in data/.
+data/*.csv
+# Historical M5 numerical reports/screenshots remain local pending rights review.
+PHASE1_REPORT.md
+PHASE2_REPORT.md
+PHASE3_REPORT.md
+phase3_preview.png
+.venv/
+.DS_Store
+
+.runtime/
+# Private uploads belong outside this repository; these exclusions are a backup.
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+private_uploads/
+business_uploads/
+.venv-production/
+*.zip
+*.log
+.pytest_cache/
+.coverage
+research/
+uploads/
+instance/

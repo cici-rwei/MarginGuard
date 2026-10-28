@@ -1,0 +1,3 @@
+-r requirements.txt
+# Production only; Python 3.10+. Verified official PyPI release 2026-10-28.
+gunicorn==26.2.0

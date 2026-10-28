@@ -1,0 +1,20 @@
+{
+  "item_id": "FOODS_3_252",
+  "store_id": "CA_1",
+  "assumption_label": "Hypothetical educational inputs, not actual Walmart inventory or costs",
+  "current_stock": 200,
+  "safety_stock": 40,
+  "on_order_units": 0,
+  "excess_cover_days": 30,
+  "existing_unit_cost": "0.85",
+  "unit_purchase_cost": "0.80",
+  "order_quantity": 350,
+  "freight": "18.00",
+  "other_costs": "7.00",
+  "moq": 100,
+  "lead_time_days": 7,
+  "discount_percent": 15,
+  "demand_uplift_percent": 20,
+  "cash_budget": "350.00",
+  "max_unmet_units": null
+}

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} · MarginGuard — Retail Risk &amp; Financial Decision Intelligence</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% if page == 'market' %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/market.css') }}">
+  <script defer src="{{ url_for('static', filename='js/market.js') }}"></script>
+  {% else %}
+  <script defer src="{{ url_for('static', filename='js/business_context.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/business_upload.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% endif %}
+</head>
+{% set business_pages = [('dashboard','/','Business Overview','Overview'),('forecasting','/forecasting','Demand Forecasting','Forecast'),('inventory','/inventory','Inventory & Risk','Inventory'),('scenarios','/scenarios','Financial Decision Lab','Decision Lab')] %}
+{% set market_sections = [('market-overview','Australian Retail Market Overview'),('industry','Industry Performance'),('states','State Comparison'),('financial','Retail Financial Indicators'),('dynamics','Business Dynamics')] %}
+{% set business_mode = request.args.get('mode') == 'business' %}
+{% set synthetic_mode = not business_mode and (request.args.get('mode') == 'synthetic' or (synthetic_demo_enabled and not demo_enabled)) %}
+{% set business_source = 'User-uploaded data' if business_mode else ('Synthetic Demo · AUD' if synthetic_mode else 'Walmart M5 Demo · USD') %}
+<body data-public="{{ 'true' if public_mode else 'false' }}" data-page="{{ page }}" data-workspace="{{ 'market' if page == 'market' else 'business' }}" data-demo-mode="{{ 'synthetic' if synthetic_mode else 'm5' }}">
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="MarginGuard home" {% if page != 'market' %}data-business-link{% endif %}><span class="brandmark">M<span>↗</span></span><span>MarginGuard<small>RETAIL DECISION INTELLIGENCE</small></span></a>
+    <div class="nav-label">WORKSPACES</div>
+    <nav class="workspace-switcher" aria-label="Workspaces">
+      <a href="/" data-workspace="business" data-business-link class="workspace-link {{ 'active' if page != 'market' else '' }}" {% if page != 'market' %}aria-current="true"{% endif %}>My Business</a>
+      <a href="/market" data-workspace="market" class="workspace-link {{ 'active' if page == 'market' else '' }}" {% if page == 'market' %}aria-current="true"{% endif %}>Market Intelligence</a>
+    </nav>
+    <div class="nav-label section-nav-label">{{ 'MARKET CONTEXT' if page == 'market' else 'BUSINESS DECISIONS' }}</div>
+    {% if page == 'market' %}
+    <nav class="page-nav" aria-label="Market Intelligence navigation">
+      {% for anchor, label in market_sections %}
+      <a href="/market#{{ anchor }}" data-market-section="{{ anchor }}" class="nav-link {{ 'active' if loop.first else '' }}" {% if loop.first %}aria-current="location"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    {% else %}
+    <nav class="page-nav" aria-label="My Business navigation">
+      {% for key, href, label, step in business_pages %}
+      <a href="{{ href }}" data-business-link class="nav-link {{ 'active' if page == key else '' }}" {% if page == key %}aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+    <div class="sidebar-bottom"><span class="live-dot"></span> Python decision support
+      <p id="sidebar-data-source">{% if page == 'market' %}ABS official statistics · AUD<br>Independent market context{% else %}{{ business_source }}<br>No connected business account{% endif %}</p>
+    </div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span><strong>{{ 'Market Intelligence' if page == 'market' else 'My Business' }}</strong><span class="divider">/</span>{{ title }}</span><span id="source-tag" class="tag neutral">{{ 'ABS official statistics · AUD' if page == 'market' else business_source }}</span></header>
+    <main>
+      <div class="page-heading"><div><div class="eyebrow">RETAIL RISK &amp; FINANCIAL DECISION INTELLIGENCE</div><h1>{{ title }}</h1><p>{% block subtitle %}{% endblock %}</p></div><span class="tag blue">{{ 'Independent market context' if page == 'market' else '14-day decision horizon' }}</span></div>
+      {% if page != 'market' %}
+      <nav class="mode-switcher" aria-label="Business data mode"><a id="mode-demo" href="{{ '/?mode=synthetic' if synthetic_mode else '/' }}" class="mode-link {{ '' if business_mode else 'active' }}">Explore Demo{{ ' · Synthetic' if synthetic_mode else '' }}</a><a id="mode-business" href="/?mode=business" class="mode-link {{ 'active' if business_mode else '' }}">Analyse My Business</a></nav>
+      <div id="mode-notice" class="note" hidden></div>
+      <div id="draft-status" class="note" role="status">Assumption drafts stay in this browser tab and are isolated by data source, product, dates and currency. They are not a business account.</div>
+      <section id="business-data-context" class="business-context" aria-label="Business data context">
+        {% if business_mode %}
+        <div class="context-title"><strong>User-uploaded data · Source not independently verified</strong><span class="tag neutral">Temporary browser session</span></div>
+        <p>Daily sales come from your CSV. Inventory, costs and purchasing inputs require your review. No business account is connected.</p>
+        <p>Forecast dates follow the selected history, not automatically today. Missing days are unknown; no automatic zero filling.</p>
+        {% elif synthetic_mode %}
+        <div class="context-title"><strong>Business data: Synthetic Demo · AUD</strong><span class="tag neutral">Fictional business</span></div>
+        <p>Sales, historical price and cost references are deliberately synthetic. Inventory, purchasing and supplier settings are editable demonstration assumptions. No real business account is connected.</p>
+        <p>The history and forecast use a simulated 2024 period, not today's outlook. Python calculates forecasts and financial results from the synthetic history and your assumptions. No currency conversion.</p>
+        {% else %}
+        <div class="context-title"><strong>Business data: Walmart M5 Demo</strong><span class="tag neutral">Demonstration workspace</span></div>
+        <p>Historical sales come from Walmart M5. Inventory, purchase costs and lead times are user assumptions. No real business account is connected.</p>
+        <p>Forecast dates represent a simulated forecast period in the historical dataset, not today's outlook. Analysis applies to the selected product and store.</p>
+        {% endif %}
+      </section>
+      {% if page == 'dashboard' %}{% include '_business_upload.html' %}{% endif %}
+      <div id="business-dataset-actions" class="dataset-actions" hidden><span id="dataset-status"></span><button type="button" id="delete-business-data" class="secondary">Delete uploaded data</button><a class="text-link" href="/?mode=business&upload=1">Upload another CSV</a></div>
+      <div id="delete-confirmation" class="alert warning" hidden><p>Delete this temporary dataset and its analysis? Related assumption drafts will be cleared. This cannot be restored.</p><button type="button" id="confirm-delete" class="primary">Confirm delete</button><button type="button" id="cancel-delete" class="secondary">Cancel</button></div>
+      <nav class="business-workflow" aria-label="Business workflow">
+        {% for key, href, label, step in business_pages %}
+        <a href="{{ href }}" data-business-link class="flow-step {{ 'active' if page == key else '' }}" {% if page == key %}aria-current="step"{% endif %}><span class="step-number" aria-hidden="true">{{ loop.index }}</span><span>{{ step }}</span>{% if not loop.last %}<span class="step-arrow" aria-hidden="true">→</span>{% endif %}</a>
+        {% endfor %}
+      </nav>
+      <section id="series-selection" class="selection card"><div><label for="product">Product</label><select id="product" disabled><option>Loading products…</option></select></div><div><label for="store">Store</label><select id="store" disabled><option>—</option></select></div><div class="selection-meta"><span class="legend-dot"></span><span id="range">Reading historical data…</span></div></section>
+      {% endif %}
+      <div id="error" class="alert danger" role="alert" hidden></div>
+      <button id="retry-connection" class="secondary" type="button" hidden>Retry connection</button>
+      <div id="loading" class="loading" role="status">{{ 'Loading ABS market data…' if page == 'market' else 'Loading Python analysis…' }}</div>
+      <div id="content" hidden>
+        {% block content %}{% endblock %}
+        {% if page != 'market' %}
+        {% set next_actions = {'dashboard':('/forecasting','View demand forecast','Understand demand before reviewing inventory.'),'forecasting':('/inventory','Assess inventory risk','Use the same product forecast to assess stock coverage.'),'inventory':('/scenarios','Compare financial strategies','Review stock, price and cost assumptions before comparing strategies.'),'scenarios':('/','Review business overview','Final step: review the recommendation and its trade-offs, or adjust your assumptions.')} %}
+        {% set target, action, guidance = next_actions[page] %}
+        <section class="flow-action" aria-label="Next business step">
+          <div><strong>{{ 'Review your decision' if page == 'scenarios' else 'Continue your analysis' }}</strong><p>{{ guidance }}</p><small>Product and store stay selected. Input drafts are restored for this context in this tab; Python recalculates results. Review assumptions before deciding.</small></div>
+          <a class="primary flow-next" data-business-link href="{{ target }}">{{ action }} <span aria-hidden="true">→</span></a>
+        </section>
+        {% endif %}
+      </div>
+      {% if page == 'market' %}
+      <footer><strong>Source &amp; methodology</strong> Australian Bureau of Statistics · Published observations and Python-derived growth.<p>ABS aggregate indicators are separate from product forecasts and business scenario calculations. Current-price amounts are AUD. No causal explanation or future prediction is implied. <a href="https://www.abs.gov.au/website-privacy-copyright-and-disclaimer" target="_blank" rel="noopener">ABS copyright and attribution ↗</a> · CC BY 4.0, subject to ABS exclusions. MarginGuard is not endorsed by ABS.</p></footer>
+      {% else %}
+      {% if business_mode %}
+      <footer id="business-footer"><strong>Data transparency</strong> User-uploaded history · Python forecasts · User-reviewed assumptions<p>The source is not independently verified. Historical price/cost references are not future quotations or verified inventory book values. No currency conversion, real purchase order or guaranteed outcome.</p></footer>
+      {% elif synthetic_mode %}
+      <footer id="business-footer"><strong>Data transparency</strong> Synthetic sales and price/cost references · Python forecasts · Editable inventory and purchasing assumptions<p>Fictional 2024 demonstration, not real enterprise or Walmart transactions. Forecast dates follow the synthetic history, not today. Educational decision support; no real purchase order or guaranteed outcome.</p></footer>
+      {% else %}
+      <footer id="business-footer"><strong>Data transparency</strong> <span class="tag neutral">Historical</span> Walmart M5 observations <span class="tag blue">Forecast</span> Python model output <span class="tag amber">Assumption</span> User-defined inventory &amp; costs<p>Forecast dates follow the historical dataset, not today. Educational decision support for small retailers, brand operators, purchasing managers and operations analysts; outcomes are not guaranteed. <a href="https://www.kaggle.com/competitions/m5-forecasting-accuracy/data" target="_blank" rel="noopener">Data source ↗</a></p></footer>
+      {% endif %}
+      {% endif %}
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+# Public preview: synthetic demo and ABS only; M5 and uploads stay disabled.
+services:
+  - type: web
+    name: marginguard
+    runtime: python
+    plan: free
+    region: singapore
+    autoDeployTrigger: checksPass
+    buildCommand: pip install -r requirements-production.txt
+    startCommand: gunicorn -c gunicorn.conf.py wsgi:app
+    healthCheckPath: /api/features
+    envVars:
+      - key: MARGINGUARD_PUBLIC
+        value: "true"
+      - key: TRUST_REVERSE_PROXY
+        value: "true"
+      - key: MARGINGUARD_SECRET_KEY
+        generateValue: true
+      - key: ENABLE_BUSINESS_UPLOAD
+        value: "false"
+      - key: ENABLE_M5_DEMO
+        value: "false"
+      - key: ENABLE_SYNTHETIC_DEMO
+        value: "true"
+      - key: M5_PUBLIC_LICENSE_CONFIRMED
+        value: "false"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"

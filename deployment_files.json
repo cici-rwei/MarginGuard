@@ -1,0 +1,783 @@
+{
+  "schema_version": 2,
+  "audit_date": "2026-10-28",
+  "frozen_at_utc": "2026-10-28T08:35:10.890955+00:00",
+  "scope": "approved_synthetic_demo_and_abs_first_private_repository_commit_candidate",
+  "source": "current_project_explicit_final_package_allowlist",
+  "file_count": 110,
+  "total_bytes": 3645957,
+  "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "size_bytes": 1328,
+      "sha256": "716f5e1c299c5c450f8208c322f3889fe27551a2c717a75652562f365d1e0f8a",
+      "reason": "只读持续集成；Python/Node 测试，无部署秘密及数据下载",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": ".gitignore",
+      "size_bytes": 677,
+      "sha256": "8c0ad49c6d730678da981ee9e78c5585af9e8794d4ed13aa5a5500c68f285e51",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": ".python-version",
+      "size_bytes": 8,
+      "sha256": "f50159fad3f4319868eb38717b91d55843c41e9803014c8de05e116a6d0bcfdc",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "AI_USE_DECLARATION.md",
+      "size_bytes": 1642,
+      "sha256": "a3fc137b7d03c35cc2e052f93ef817d2192cd27d342b142ef1683a578faa91f0",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "AUD_USD_CURRENCY_DESIGN.md",
+      "size_bytes": 7270,
+      "sha256": "e0bd5612d9385d4c75251714980e1be1ef34639d80303c6357e27ee77bd48984",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "BUSINESS_DATA_UPLOAD_PRD.md",
+      "size_bytes": 40960,
+      "sha256": "d355c3a6785f3ff601c775622f022d68ed3cf8c81d52835977bd63b6d34e5671",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "COMP9001_COMPLIANCE.md",
+      "size_bytes": 3937,
+      "sha256": "b9b064d27786168ed241dd3547ec044bab423805e48141c61fb47982d1f54322",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "DEMO_SCRIPT_3MIN.md",
+      "size_bytes": 2549,
+      "sha256": "b89b97188fabff7fc13bbf79a25d913fb00167fbf8f987bdd7f34314a8d5852e",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "DEPLOYMENT_EVIDENCE.md",
+      "size_bytes": 10027,
+      "sha256": "a8765f3e4e050b97f067de9df67a3bc801623ef3a14fc735e5d4d3d8c65fb8bc",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "DEPLOYMENT_FILE_AUDIT.md",
+      "size_bytes": 9449,
+      "sha256": "2e4bc354a705b1ebd1f569cd39ef913e51b9b5ac61dd509f777d47cc3a26a1d1",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "DEPLOYMENT_REPORT.md",
+      "size_bytes": 5273,
+      "sha256": "6c757b00feed97b92dd0aa43f5af267ec0b800870ddaafdedc425ab113904b92",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "FINAL_QA_REPORT.md",
+      "size_bytes": 9328,
+      "sha256": "bd82f0e07c3449110b4e82a4d198fd6b9abb617045c9da1bb2dfb8f960891069",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "MARGINGUARD_PRODUCT_RESTRUCTURE.md",
+      "size_bytes": 23146,
+      "sha256": "8658c7f9ea8dff37fd206052802eb019dc270783ed953ad879bbc7222f384698",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PADLET_DRAFT.md",
+      "size_bytes": 1512,
+      "sha256": "74cd2d7b544a482fc11f7991bdd15bd4657fbb819688352c9dc8a6ea576ea973",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PHASE4A_REPORT.md",
+      "size_bytes": 14864,
+      "sha256": "d6112ffe14b811c6e226d629530bb868f30d50ff8c6f696f40decc5161fd013f",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PHASE4B_REPORT.md",
+      "size_bytes": 13180,
+      "sha256": "a33ad1fdb065fa0937bd0988a155825398a0a199d980b6ca5dc85ac3a6a4a851",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PHASE5A_REPORT.md",
+      "size_bytes": 12032,
+      "sha256": "14047aea95c1bf53c056869255cfd554328488d54026b5d1975cf5dcfeae2bb7",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PHASE5B_REPORT.md",
+      "size_bytes": 4794,
+      "sha256": "d371f5e6c5551a9f3d98a0c336aff44cbfbb81dbf0cfaab9f6c1ef8db9300d8d",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PHASE5C_REPORT.md",
+      "size_bytes": 4450,
+      "sha256": "725db69abd99edae116028c15a4e42ea913ad0e5b5bc1dae078a70ad3b1e7a22",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PRODUCT_RESTRUCTURE_A_REPORT.md",
+      "size_bytes": 10646,
+      "sha256": "837b3d1357fefa9962891d22a585c666e01b36eceace096c24085d5152d471fa",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "PUBLIC_DEPLOYMENT_REPORT.md",
+      "size_bytes": 7001,
+      "sha256": "3aa235f626d16c86041d990785fe1a672cf50b8937f2c0fd8e53510bf5cb579a",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 23250,
+      "sha256": "a5fdf2454d52eaaab8f2d57001fd49b408fb155fa83b7ab0cc666ff0a49e185d",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "RESTRUCTURE_B_REPORT.md",
+      "size_bytes": 3272,
+      "sha256": "843598cccab77f10fc7868718d177cc191cf33aa2ea9e05f54d7b5da8baa759e",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "SYNTHETIC_DEMO_MINIMAL_PLAN.md",
+      "size_bytes": 10434,
+      "sha256": "669218f410f44134562ac802754dd23e02ab94fb9ccd3818d61a4fb6f9d41295",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "abs_counts.py",
+      "size_bytes": 14622,
+      "sha256": "af197d3c87d00b455722b1eef5531fd0eec5bbc956c509e50fb136c006908a7b",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "abs_data.py",
+      "size_bytes": 12692,
+      "sha256": "12a14d177b953abb73600054c5b9e47e261bfbadd8c27cdc135827fd0a9848a8",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "abs_indicators.py",
+      "size_bytes": 9001,
+      "sha256": "e0b1422fae6206b48692054271f42bc516520275e2af762091009176dfbb08be",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "app.py",
+      "size_bytes": 9197,
+      "sha256": "1af46fe966c27293873c54c074f7fb83ca27bc87a902aadd8279e4d9fecbe946",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "business_api.py",
+      "size_bytes": 11524,
+      "sha256": "29589f02a5270580bef001aed51390a36674b8c764e9fcfce6aea176b6eb7262",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "business_csv.py",
+      "size_bytes": 16304,
+      "sha256": "cf7c6ae55618ec9a3d2d558879c3114c908f32706f231d4089538c603ba0d5a9",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "business_forecast.py",
+      "size_bytes": 7359,
+      "sha256": "9241d258b523216bc29e14cda3836da50137d7832f7a0fd2692076abcb2c3f70",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "business_service.py",
+      "size_bytes": 13732,
+      "sha256": "8368e2045ebc678e062b383934ff4d9527dce5cde62cfcce0ca4a1b539d76e02",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "business_store.py",
+      "size_bytes": 13272,
+      "sha256": "84b90d0556336bfa7f22f14ca558cf46e473dfa84db7882f39b63313ea3d6a2d",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "business_worker.py",
+      "size_bytes": 5585,
+      "sha256": "29fcaba70df98b7bd3bcf1dcb1326d31b25a652766bad7e08d0b7281a1bbc17d",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "currency.py",
+      "size_bytes": 370,
+      "sha256": "d3cda5b0f0ae063396b1bc219289bf53f2c8c2461cc0e3c6bd852fbb5923b670",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/DATA_SOURCE.md",
+      "size_bytes": 3659,
+      "sha256": "70916563905a02331e1a7eb80147e94432ab3f2f466fbefb6ceab69303b3187c",
+      "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/abs/build_all.json",
+      "size_bytes": 656,
+      "sha256": "580c2dfe854213219b3196a323a2e5a569ba1e57098c5e58917d543a254594ec",
+      "reason": "ABS 官方汇总轻量快照或来源/质量元数据，保留许可和统计口径",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/abs/business_counts.json",
+      "size_bytes": 5543,
+      "sha256": "3ced10fa42eea56a4fe2f1c64900dc97dc9a5f78dc371c990bd3a597cb89a2f2",
+      "reason": "ABS 官方汇总轻量快照或来源/质量元数据，保留许可和统计口径",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/abs/market_catalog.json",
+      "size_bytes": 1025427,
+      "sha256": "9a2398f112ebe231528ceef69d70460ec1ef1663a82e313be07c122eac85a8e5",
+      "reason": "ABS 官方汇总轻量快照或来源/质量元数据，保留许可和统计口径",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/abs/market_data.json.gz",
+      "size_bytes": 1557978,
+      "sha256": "cd8116463f146ab27fc942adde5e4dd2899de708dd14c9475d5f06993bca5d11",
+      "reason": "ABS 官方汇总轻量快照或来源/质量元数据，保留许可和统计口径",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/abs/market_quality.json",
+      "size_bytes": 1749,
+      "sha256": "ac2c5e647d7eb0d6cb291712ca26cf2c736f5ec2ab06adfe9043066fb03c5c1c",
+      "reason": "ABS 官方汇总轻量快照或来源/质量元数据，保留许可和统计口径",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/abs/sources.json",
+      "size_bytes": 12421,
+      "sha256": "15a3905e79d628ceb9b44cf8abe50f74fbd8c6e44596436191d7604e7bf3b83b",
+      "reason": "ABS 官方汇总轻量快照或来源/质量元数据，保留许可和统计口径",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data/scenario_defaults.json",
+      "size_bytes": 529,
+      "sha256": "3d56e6c553791a38d7615b9218e2d7c724c5d717a8866926c214b6c99ca5f155",
+      "reason": "明确标注的本地情景假设，非 Walmart 真实库存/成本",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "data_loader.py",
+      "size_bytes": 2463,
+      "sha256": "67108502713843b8a77a10e265a05e68cd4a878a4de1a95226b5bd3ce10f3973",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "deployment_files.json",
+      "size_bytes": 35139,
+      "sha256": null,
+      "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "examples/business_csv/README.md",
+      "size_bytes": 7916,
+      "sha256": "f82b299cc96a487c832fb69beeeefc4aa0148d044555687201b63e8347e3a7c6",
+      "reason": "明确标注的合成示例、空 CSV 模板或示例说明，非企业/M5 记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "examples/business_csv/synthetic_84_days.csv",
+      "size_bytes": 5080,
+      "sha256": "e17cefba6b690c26204ecc41359882587e2830985d1f15763a7296b409ab7fe6",
+      "reason": "明确标注的合成示例、空 CSV 模板或示例说明，非企业/M5 记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "examples/business_csv/synthetic_multi_series.csv",
+      "size_bytes": 15004,
+      "sha256": "ae5f99cd257b6b4da7beb6c1d467650bf1d7b2a95422caf664c8a92a1b8da2f9",
+      "reason": "明确标注的合成示例、空 CSV 模板或示例说明，非企业/M5 记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "examples/business_csv/template.csv",
+      "size_bytes": 52,
+      "sha256": "37079c3fae4d34739efb14017c78bd7123b2c1ee1b7c452c932ac1346d75b064",
+      "reason": "明确标注的合成示例、空 CSV 模板或示例说明，非企业/M5 记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "finance.py",
+      "size_bytes": 2923,
+      "sha256": "d77e90c3bbb1811999f48c94929a3e042a6a82cc39120941ad37fc416535c375",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "forecast.py",
+      "size_bytes": 2885,
+      "sha256": "7f420612814467afa8074dc6d6b45a65c28ee6b72df133b215874e1216700f95",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "gunicorn.conf.py",
+      "size_bytes": 550,
+      "sha256": "150d24719d99810167de2624eec25b1b661aa1243a85ef6d3975c906e056c108",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "inventory.py",
+      "size_bytes": 2783,
+      "sha256": "ffdb58d9c42517c69454a22211d00450aa234b8670352abe9777546411e4495c",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "market_api.py",
+      "size_bytes": 2648,
+      "sha256": "d7d54c75945c7862b7dd4d903759cafcc8034163346a85b382d0724780495fd1",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "market_service.py",
+      "size_bytes": 14754,
+      "sha256": "d17e27f7c93886b7caa88f2a3cceee5627bf9b7e1ac999c5ff5837ce35bb4cf1",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "phase2_inputs.py",
+      "size_bytes": 1062,
+      "sha256": "c917b215e798a748305edc32e0c500296c4f7853796ed59e61910497b171df64",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "render.yaml",
+      "size_bytes": 839,
+      "sha256": "54862de27e8e7faf3e1f88444a80005615992f6d74be744433e57363640efeb7",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "requirements-abs.txt",
+      "size_bytes": 131,
+      "sha256": "daad3d27faaba535742d4c39e82e5ece8495e66e4732976684876d9176037c7d",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "requirements-production.txt",
+      "size_bytes": 113,
+      "sha256": "4fd1ecdd0b25966d566a7bb962df3407ded2bcff53d040cd72ab151ce0b3ed5e",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "requirements.txt",
+      "size_bytes": 96,
+      "sha256": "00b249dd0394824b33ad9053e371ce5d067883e40d7507b34b3301dc482a71bc",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "run_phase1.py",
+      "size_bytes": 1852,
+      "sha256": "7a9e9d21354dd6af4791f5f2eec04b55e00b76937c9330ac448e7580382b2116",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "run_phase2.py",
+      "size_bytes": 5098,
+      "sha256": "23ec3d65e1816b2109981dde35e2e4b0d1bae3c5ed839c275d082e2db4d819a4",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "runtime_config.py",
+      "size_bytes": 2793,
+      "sha256": "bb30f6f6a572ddacc50c67ff991bf706a686723a05ad6f7b68ec3f146f174dd7",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "scenario.py",
+      "size_bytes": 7271,
+      "sha256": "f30d17034e3b52eb39c447da5f1946b7cf936a0ebaebeeb2046a315a115e8392",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "screenshots/abs_market_overview.png",
+      "size_bytes": 87136,
+      "sha256": "6067eeb9b48f9875f5dbbddd1f6a70a3b63da5f66adfc04591c0a4c7c4d4943a",
+      "reason": "既有 ABS 或明确合成演示截图，无 M5 历史或用户记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "screenshots/synthetic_aud_decision.png",
+      "size_bytes": 83383,
+      "sha256": "e094c46b64aa3cc98dd6c5630d45ec4d88d9cf549e76e028cd3da4faa28f7f13",
+      "reason": "既有 ABS 或明确合成演示截图，无 M5 历史或用户记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "screenshots/synthetic_mobile_overview.png",
+      "size_bytes": 45384,
+      "sha256": "44181dca6fc1fafdfde477def4411db5255215611901bc065905ff9077ae33fe",
+      "reason": "既有 ABS 或明确合成演示截图，无 M5 历史或用户记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "scripts/audit_m5.py",
+      "size_bytes": 6221,
+      "sha256": "346d3778c5401dd8a9446d61ec30b8b83d647dc0b842ae7f5b7b8e022691eddb",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "scripts/cleanup_business_data.py",
+      "size_bytes": 1057,
+      "sha256": "35824e5c359914a80565344584d0c8fc98a96612ed8e188df20c0c0a8d77fe73",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "scripts/package_final.py",
+      "size_bytes": 12187,
+      "sha256": "dff69a778e6895c6ef1dafa2bb05dbe008040cde25dfce51d54ee5b167f755ca",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "scripts/prepare_abs.py",
+      "size_bytes": 7959,
+      "sha256": "3cbd5e93100c51cb4310308a7d0cdddb5f486a45c77f67227d740f47df66bc17",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "scripts/prepare_m5.py",
+      "size_bytes": 5978,
+      "sha256": "a376542e1fa559e3306a40f56fe3d0a7d6e5d1cafb8df0dad36b4aebd643ed47",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "start.command",
+      "size_bytes": 443,
+      "sha256": "0c96f2aeaef3c5d1b62bc36ce2023c0bdccf1bcab1906f50b9aa936a049422ee",
+      "reason": "版本、依赖、运行或文件忽略配置；无环境密钥值",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "static/css/market.css",
+      "size_bytes": 6546,
+      "sha256": "f8ea85b7c2ede5d1cbc407367050bc6b6dd5f16fb9e23ead4a3d839d857e9dfd",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "static/css/style.css",
+      "size_bytes": 13679,
+      "sha256": "16aa12dde5517c3a704ab49efa48911c3dd36f2c92526741b5ca043ede637a40",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "static/js/business_context.js",
+      "size_bytes": 3627,
+      "sha256": "5f8dd300fe4e09421fa4bfc86be68bb97131c08dd4da2f878934024e85e721e1",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "static/js/business_upload.js",
+      "size_bytes": 9169,
+      "sha256": "d453ad02da485ecc97ed6edadfce38c866905912f7c490bede549ef6e11ec8cb",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "static/js/main.js",
+      "size_bytes": 34924,
+      "sha256": "b3f65a3a3c05a082495e1995d6dd299a954a3748ca9ff2ee33a6b2f8e49df513",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "static/js/market.js",
+      "size_bytes": 29042,
+      "sha256": "946c3e469d51348529d18c0290ece2406799aa7e2b3fc2ab465a1ec598c19e18",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "synthetic_demo.py",
+      "size_bytes": 13372,
+      "sha256": "74d7919f78511005b6c9238936e43ea14b96cb1a8b295dee013abfc7a80d8562",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/_business_upload.html",
+      "size_bytes": 2803,
+      "sha256": "c6daf7697c531958bfaef349ffc1af91d1b4ce12006b2c5edb8909832708a63c",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/base.html",
+      "size_bytes": 12165,
+      "sha256": "d4cfdbc9de9ebcf191a1707f25dced28233f076936ab46321feb0ab61eab45f4",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/dashboard.html",
+      "size_bytes": 1420,
+      "sha256": "c82bf3ab132bce8b5d4745ee651ddaf5525e76f651741c2789e497144c68044f",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/forecasting.html",
+      "size_bytes": 1663,
+      "sha256": "c0412e12d7da7cf6ca1ff4b003b2600456b58eceb2093562162ff7c688a2c6ec",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/inventory.html",
+      "size_bytes": 948,
+      "sha256": "bd39146c5aacde67714490183824599bc84b1645c54e5f1d0f1415ee68ca0bf4",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/market.html",
+      "size_bytes": 13231,
+      "sha256": "821cdbd58fd4bf6d647d336f061decf465c2cad2fc8ed2cac0125d6ade776fa6",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "templates/scenarios.html",
+      "size_bytes": 2554,
+      "sha256": "40e3ce7990eb4b9c6162da4ed15d8890a99099c10c26fbe1bc259af89d831558",
+      "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/business_context.test.js",
+      "size_bytes": 5916,
+      "sha256": "8fd392b347b595c82119d2f03d384d85c2fcf014727fc719286a50135132ba56",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/business_fixtures.py",
+      "size_bytes": 1192,
+      "sha256": "a1ab942d0981ad5b3417102be5bfa6bb8e0c0c2c8c61d0ed33017acb7b5bb2fe",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_abs_counts.py",
+      "size_bytes": 9695,
+      "sha256": "5ca29b25d779c7484eab1e75521d908ef777d974e6d1ba0abd528a9fb871c053",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_abs_data.py",
+      "size_bytes": 14198,
+      "sha256": "167aae7b33abba34471d19518fef30115c8853daacf696a8db1beeae5dbee525",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_abs_indicators.py",
+      "size_bytes": 8695,
+      "sha256": "2b0c9fb5243c0ac8a1edcbdad21af0d8e77fde2e22178a2282260692c09d4375",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_business_api.py",
+      "size_bytes": 21881,
+      "sha256": "b34a0cebba9adcc64319b9dc825adf4a81071f34e9ee73a228d94ea78d509b22",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_business_csv.py",
+      "size_bytes": 15963,
+      "sha256": "522e00c262176d0261ec73afddbcacd303b5734e5f0db01df636f3a302608911",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_business_forecast.py",
+      "size_bytes": 12749,
+      "sha256": "3d6261a1a24d7e2bba51d0637384772f2117939c44d43ed99aff89e8be2f404a",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_business_store.py",
+      "size_bytes": 7088,
+      "sha256": "c6248d9b617cf670cfa5e21f2fa34d09746055c013779d9cb030733e6f3caa8a",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_business_ui.py",
+      "size_bytes": 4351,
+      "sha256": "74bd9c9a947b5021582e203883845f338c60158dd97271481839edb192ecffa6",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_currency.py",
+      "size_bytes": 8807,
+      "sha256": "1198c861889600c288efc399278ebab4b60d4b0770733af544fd90f8015dcb58",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_final_package.py",
+      "size_bytes": 8374,
+      "sha256": "28424bd160f431ff025d5266ba2497b62a703b395578048945bde727dc601a46",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_finance.py",
+      "size_bytes": 2057,
+      "sha256": "059a084a04c691e2cd8d00e0d88ae6b23cf8dc1a77d80bb35cf91db07f0ab089",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_inventory.py",
+      "size_bytes": 2665,
+      "sha256": "586ebb96912e00bf8d34c183ebb031811c03daf4a306db64e4e4896e6e3d2982",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_market_web.py",
+      "size_bytes": 18738,
+      "sha256": "64339d834481602029c8d00be97faab556322e5fa361715a4444446eb1c6ab8b",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_phase1.py",
+      "size_bytes": 7362,
+      "sha256": "b03aeea4f0edfa5fad66817e62a4603ddfed95581196e75454f16cbc83e95baa",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_product_navigation.py",
+      "size_bytes": 10005,
+      "sha256": "33758de1586ba8981f0c16e757736fed344ac8fea93d824cf4291c3362cc7eea",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_real_data.py",
+      "size_bytes": 3698,
+      "sha256": "716fce317d13925dd8614037a76574664491c60344b80c82db35f68a03f38899",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_release_config.py",
+      "size_bytes": 7765,
+      "sha256": "703a76549dc54f32e8be9e01222f5a5e246126ee5c39e52a78e171badc558a32",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_scenario.py",
+      "size_bytes": 6967,
+      "sha256": "9ae92cbe2882c0b21a11f76cb88b11e88a30f07cd056af0ddd0fd5c4c8fd2df9",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_synthetic_demo.py",
+      "size_bytes": 12848,
+      "sha256": "20b3f7a3f0177be71ed5dae97ea100fffc928e0f9c4958d5b77e47b76e701173",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_web.py",
+      "size_bytes": 5845,
+      "sha256": "fd3fa6a8746ff6509df9f671944375cc5a65dea830479d7fbea9c47fa21a111c",
+      "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "wsgi.py",
+      "size_bytes": 106,
+      "sha256": "03bba5fb796ad22b261424089b2ae3be73f27be51b48b8bbfc31f8f540afff46",
+      "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    }
+  ],
+  "excluded": "M5 raw/processed/derived records; private enterprise uploads; environment secrets; authentication state; SQLite; venv; caches; logs; research downloads; ZIP backups; unreviewed files."
+}

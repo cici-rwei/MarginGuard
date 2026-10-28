@@ -1,0 +1,44 @@
+name: MarginGuard tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marginguard-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12.14"
+      - name: Install runtime and test dependencies
+        run: |
+          python -m pip install -r requirements-abs.txt -r requirements-production.txt
+          python -m pip check
+      - name: Run Python tests
+        # Local M5 and original ABS workbook integration checks explicitly skip
+        # when their non-distributable/optional inputs are absent. Never download
+        # those records in CI; synthetic and bundled ABS snapshot tests still run.
+        run: python -m unittest discover -s tests -v
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Run existing browser-state unit tests
+        # Node is used only for its test runner; no frontend build or npm install.
+        run: node --test tests/business_context.test.js

@@ -1,0 +1,18 @@
+<section id="upload-panel" class="card" hidden>
+  <div class="section-title"><div><h2>Analyse your daily sales</h2><p>Upload → Validate → Confirm history → Forecast → Inventory → Decision</p></div><a class="text-link" href="/api/business/template.csv">Download CSV template</a></div>
+  <p>Daily totals for each product and store. Required: Date, Product, Store, Units Sold. Optional: Unit Price, Unit Cost. At least 42 consecutive known days; 84 days or more recommended. Missing dates are unknown, never automatically zero-filled.</p>
+  <div class="note">Temporary, private browser session. Pending uploads expire after 15 minutes; sessions expire after 30 minutes idle or 2 hours total. You can delete your data. Do not upload customer, payment or other personal details. No long-term storage or account recovery.</div>
+  <form id="upload-form">
+    <div class="form-grid">
+      <div class="field"><label for="csv-file">Daily sales CSV</label><input id="csv-file" name="file" type="file" accept=".csv,text/csv" required><small>UTF-8 / UTF-8 BOM · 5 MiB · 50,000 rows · 100 product-store combinations</small></div>
+      <div class="field"><label for="upload-currency">Currency</label><select id="upload-currency" name="currency" required><option value="">Choose currency</option><option value="AUD">AUD — Australian dollar</option><option value="USD">USD — US dollar</option></select><small>One currency for every amount. No exchange-rate conversion.</small></div>
+      <div class="field"><label for="upload-time-zone">Business time zone</label><input id="upload-time-zone" name="time_zone" value="Australia/Sydney" required maxlength="80"><small>IANA zone, for example Australia/Sydney or America/New_York. Only completed days.</small></div>
+      <div class="field"><label for="upload-tax-basis">Amount tax basis</label><select id="upload-tax-basis" name="tax_basis" required><option value="exclusive">Tax exclusive</option><option value="inclusive">Tax inclusive</option></select><small>Use the same basis for costs and future assumptions. No tax accounting.</small></div>
+    </div>
+    <label class="check-row"><input id="upload-sales-basis" type="checkbox" required>I confirm Units Sold means gross sold units, with returns kept separate; this is a daily summary, not transaction rows.</label>
+    <label class="check-row"><input id="upload-authorized" name="authorized" type="checkbox" required>I have permission to analyse this data and have removed personal details. Its source is not independently verified.</label>
+    <div class="form-actions"><button class="primary" type="submit">Validate CSV</button><span id="upload-status" role="status"></span></div>
+  </form>
+  <div id="upload-errors" role="alert" hidden></div>
+  <div id="upload-report" hidden></div>
+</section>

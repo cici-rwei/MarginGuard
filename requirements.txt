@@ -1,0 +1,2 @@
+# Phases 1–2 use the standard library. Flask serves the Phase 3 local dashboard.
+Flask==3.1.2
