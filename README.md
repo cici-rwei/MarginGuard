@@ -7,7 +7,7 @@ MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运�
 - **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。`Analyse My Business` 提供受限临时 CSV 分析，通过匿名会话处理用户数据；无需注册，不提供长期保存。流程为 **Sales + Optional Inventory → Validate → Batch Forecast → Business Risk Overview → Review Product → Financial Decision**。
 - **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
 
-企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)；当前版本、功能开关及最新公网验收以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。 本轮已完成受控安全检查及正式开放后的无凭证API、两套独立浏览器复验；公开CSV可用，详细通过项及未验证边界见该验收报告。
+企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。当前批量库存风险版本为 `4d5cce2c667989117e16c4a81b5045f1777be287`，Render 已为 Live；当前实现范围、测试与公网验收见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，此前 CSV 正式开放及安全验收保留在 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，此前本地交付见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)。这些旧阶段报告中的通过项属于当时版本，不代表本轮重新执行了全部安全检查。
 
 ## 1. 在 Mac 上独立启动
 
@@ -51,13 +51,13 @@ python app.py
 
 | 路由 | 页面 | 用途 |
 |---|---|---|
-| `/` | Business Overview | 已观察销量、14 天需求、回测 MAE、已评估或未评估的库存状态 |
+| `/` | Business Risk Overview（上传模式）；Business Overview（Demo） | 上传模式优先显示批量库存风险与数据问题，再进入原单品销量、预测及手动情景明细 |
 | `/forecasting` | Demand Forecasting | 历史趋势、两方法 MAE、独立的历史回测与未来预测 |
 | `/inventory` | Inventory & Risk | 库存覆盖、交货期需求、库存位置、建议额外采购量及规则说明 |
 | `/scenarios` | Financial Decision Lab | 三策略财务结果、预算/MOQ/服务约束、采购决策摘要 |
 | `/market` | Market Intelligence | 同页内五组导航与七个 ABS 分析区块 |
 
-业务页面之间传递所选上下文。Demo URL 使用商品/门店 ID；上传 URL 仅携带模式与不透明的数据集/序列标识，不含私有商品名称、金额或认证令牌。ABS 页面保持独立，不将 ABS 指标混入 My Business 的 KPI。
+业务页面之间传递所选上下文。Demo URL 使用商品/门店 ID；上传 URL 仅携带模式与不透明的数据集/版本/序列标识，不含私有商品名称、金额或认证令牌。ABS 页面保持独立，不将 ABS 指标混入 My Business 的 KPI。
 
 输入草稿使用当前标签页的 `sessionStorage`，按 **数据来源、数据集、版本、商品—门店序列、预测原点、币种** 隔离。库存与财务输入分别保存；CSV 明细、认证令牌、计算结果不写入 Web Storage。恢复完整输入后，重新请求 Python 计算；切换商品或数据源不会沿用另一个上下文的输入。浏览器禁用存储时仍可手动计算，但不承诺换页保留。
 
@@ -205,12 +205,12 @@ PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v
 python -m pip check
 ```
 
-本轮保留原302项Python测试逻辑和原22份测试目录文件，新增体验、容量、准入、受控验收及租约检查。完整本地Python **348/348**、Node **29/29**通过；GitHub不包含受限原始数据，对应19个方法未执行。最新具体环境及公网证据统一见 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)；[FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)为此前交付快照，不把历史61/109/141等数量当作当前总数。
+本轮批量库存升级保留此前348项Python与29项Node测试，新增105项Python和22项Node回归。完整本地 **Python 453/453、Node 51/51通过**。GitHub CI 实际执行并通过434个Python测试方法，另19个依赖原始M5或ABS研究文件的方法未执行；unittest日志汇总为 `Ran 437`、`skipped=5`，包含整类跳过，不能将该摘要直接当作实际通过方法数。最新环境及本轮公网证据见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。[POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)与[FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)保留历史阶段证据，不把此前61/109/141/348等数量当作当前总数，也不把历史安全验收计为本轮复验。
 
 前端输入草稿有独立的 Node 测试；Node 仅用于开发测试，不是网页运行依赖。若本机已安装支持 `node:test` 的 Node，可执行：
 
 ```sh
-node --test tests/business_context.test.js tests/uat_business_ui.test.js
+node --test tests/business_context.test.js tests/uat_business_ui.test.js tests/business_risk.test.js
 ```
 
 没有 M5 本地数据或原始 ABS 研究 Excel 时，对应集成测试会明确跳过；这不等于完成该数据的真实文件验证。合成测试只验证软件行为。五页实际浏览器交互及移动布局结果也单独记录在最终 QA，不以 HTTP 200 代替界面验收。
@@ -227,7 +227,7 @@ python scripts/package_final.py
 
 ## 9. 生产运行与公开部署
 
-生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 使用私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准；首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
+生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 使用私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md) 为准；首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
 
 用已安装的 Python 3.12.14 创建独立生产验证环境，再安装：
 
@@ -278,8 +278,8 @@ python scripts/cleanup_business_data.py --storage-root /absolute/private/directo
 
 ## 上线后验收与公开上传状态
 
-Part A体验优化已上线：手机策略卡片、按开关显示上传状态、参数导入差异及英文业务语言帮助。Part B已在同一Render HTTPS服务完成 **189/189** 项检查：受控125项＋正式公开无凭证64项，失败0，包括AUD/USD、隔离、删除、真实30分钟到期、服务重启、限流恢复及删除过程中的计算槽竞态。两套独立浏览器再次验证公开上传、预测、库存、财务与删除；390px手机视口已检查。
+当前应用提交 `4d5cce2c667989117e16c4a81b5045f1777be287` 已部署为 Live。上传模式增加 **Business Risk Overview** 和可选库存 CSV；Synthetic Demo、原单品流程与 ABS 保留。当前部署、本轮真实公网测试及仍未验证的事项以 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md) 为准。
 
-公开提交 `091dd76bec16f071d3d489ce5299780570d39fb2` 已部署Live，正式开放**受限临时CSV分析**，不需要验收凭证。当前公共上限1 MiB、10,000行、20组合；待确认数据15分钟，匿名会话空闲30分钟或创建后2小时失效，以先到者为准。重启、休眠或部署可能使数据更早丢失，不能作为唯一备份。关闭标签页不是删除操作；请使用 Delete uploaded data 主动移除数据。
+**受限临时CSV分析**继续公开开放，无需验收凭证。公共上限仍为1 MiB、10,000行销售、20个商品—门店组合；库存CSV最多20行。待确认数据15分钟，匿名会话空闲30分钟或创建后2小时失效，以先到者为准。重启、休眠或部署可能使数据更早丢失，不能作为唯一备份。关闭标签页不是删除操作；请使用 Delete uploaded data 主动移除数据。M5公开接口继续关闭。
 
-受控门禁已经关闭，验收摘要清空、截止时间归零；公开入口无review key要求或review提示。浏览器实际遇到processing_busy时保留输入、明确提示并可重试成功；这不等于已测worker超时。已验证结果及未验证的Render总RSS、磁盘余量、云介质取证级清理、真实worker超时等边界见 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)。免费公开服务仅是作品集和短期分析工具，不适合长期保存敏感数据，也不承诺企业SLA。
+此前Part A体验优化及Part B正式开放的189/189项HTTPS检查，记录于 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，对应当时的 `091dd76` 应用版本。这些包含到期、重启、会话隔离及竞态的历史证据没有被记作本轮重新执行的检查。受控门禁仍关闭；实际worker超时、Render总RSS与磁盘余量、云介质取证级清理等结论须按各报告的具体执行范围解读，不能从历史通过或本地单元测试推定公网验证。免费服务用于作品集和短期分析，不适合长期保存敏感数据，也不承诺企业SLA。

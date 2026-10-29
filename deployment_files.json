@@ -5,7 +5,7 @@
   "scope": "bulk_inventory_risk_public_upload_incremental_release",
   "source": "current_project_explicit_final_package_allowlist",
   "file_count": 133,
-  "total_bytes": 3981893,
+  "total_bytes": 3987159,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -45,8 +45,8 @@
     },
     {
       "path": "BULK_INVENTORY_RISK_REPORT.md",
-      "size_bytes": 11039,
-      "sha256": "649f7c46f8494e6262416229d5e0596c4508e8c41f1e047a344f6814bf0e8129",
+      "size_bytes": 15400,
+      "sha256": "9282c62425188762cc319fe8a4e6736999382ea309fcb8dcddac21a6cea7899a",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -150,8 +150,8 @@
     },
     {
       "path": "POST_DEPLOYMENT_UAT_REPORT.md",
-      "size_bytes": 21107,
-      "sha256": "f3b34e4ad1a9b6bd75ee818c5f47b4676d3cdda995d572b07d018b3fcbee8680",
+      "size_bytes": 21507,
+      "sha256": "e74661ffbd356fcef1ed6a997dfa54091677fed5ee98007b3b2288555f2aa5d4",
       "reason": "本轮界面验收报告或明确合成输入的独立回归测试",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -171,8 +171,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 30298,
-      "sha256": "f7612295ddd9a9c191bfdd40b66cfffa772a5a074b7c03203a29cd9a9b77db78",
+      "size_bytes": 30717,
+      "sha256": "0674c3ed7a95ebc805981e5bc706d1c73fd813a4469bced68b5fd3faf318a4f8",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -654,8 +654,8 @@
     },
     {
       "path": "templates/dashboard.html",
-      "size_bytes": 5042,
-      "sha256": "e510add760d8e42d13d4e3182399a361eb17bde8776d49f22aef5b124a5932c3",
+      "size_bytes": 5128,
+      "sha256": "45e80cfb6ebead060c95c415c73acbc050dc2dfe6a9e33fac9363911a30b5dc6",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
