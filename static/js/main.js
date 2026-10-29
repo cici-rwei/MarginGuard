@@ -9,7 +9,9 @@ const kpi=(label,value,note='',small=false)=>`<div class="kpi"><div class="kpi-l
 const table=(headers,rows)=>`<table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
 const queryAtStart=new URLSearchParams(location.search),business=queryAtStart.get('mode')==='business';
 let catalog=[],state=null,generation=0,calculation=0,controller=null,datasetId=queryAtStart.get('dataset'),revision=null,features=null,synthetic=queryAtStart.get('mode')==='synthetic'||document.body.dataset.demoMode==='synthetic';
-const Upload=window.MarginGuardUpload,Context=window.MarginGuardContext;
+const Upload=window.MarginGuardUpload,Context=window.MarginGuardContext,Risk=window.MarginGuardRisk;
+let initialContextChecked=false;
+const riskView=business&&page==='dashboard'&&Risk?Risk.createOverview({request:Upload.request,getSession:Upload.getSession,onConfirmed:async data=>{initialContextChecked=true;const previous=selected();generation++;calculation++;controller?.abort();state=null;revision=data.revision;$('content').hidden=true;$('series-selection').hidden=true;if(previous)linkContext(previous);else history.replaceState(null,'','?'+new URLSearchParams({mode:'business',dataset:datasetId,revision}));await loadBusinessCatalog(previous?.series_id);}}):null;
 let storage;try{storage=window.sessionStorage;}catch(error){storage=null;}
 function unavailableStorage(){ $('draft-status').textContent='Browser storage is unavailable. You can still analyse manually; inputs will not survive navigation. No results or CSV records are stored in browser storage.'; }
 const drafts=Context.create(storage,unavailableStorage);if(!storage)unavailableStorage();
@@ -23,8 +25,8 @@ async function api(path,body,signal){
   if(!response.ok)throw Object.assign(Error(typeof data.error==='string'?data.error:'Request failed.'),{status:response.status,code:data.code});return data;
 }
 function showError(error){$('error').textContent=Context.friendlyError(error);$('error').hidden=false;$('retry-connection').hidden=false;}
-function expired(error){drafts.clearUploads();state=null;generation++;controller?.abort();$('content').hidden=true;showError(Error('Your temporary data is unavailable or expired. Return to Analyse My Business and upload again.'));}
-Upload.attach({onExpired:expired,onError:showError,onRemoved:id=>drafts.clearDataset(id),onConfirmed:async data=>{generation++;calculation++;controller?.abort();state=null;$('content').hidden=true;$('loading').hidden=false;datasetId=data.dataset_id;revision=data.revision;if($('upload-panel'))$('upload-panel').hidden=true;notice('');try{await loadBusinessCatalog(data.series?.[0]?.series_id);}catch(error){showError(error);}finally{$('loading').hidden=true;}}});
+function expired(error){riskView?.clear();drafts.clearUploads();state=null;generation++;controller?.abort();$('content').hidden=true;showError(Error('Your temporary data is unavailable or expired. Return to Analyse My Business and upload again.'));}
+Upload.attach({onExpired:expired,onError:showError,onRemoved:id=>{drafts.clearDataset(id);riskView?.clear();},onConfirmed:async data=>{initialContextChecked=true;riskView?.clear();generation++;calculation++;controller?.abort();state=null;$('content').hidden=true;$('loading').hidden=false;datasetId=data.dataset_id;revision=data.revision;if($('upload-panel'))$('upload-panel').hidden=true;notice('');try{await loadBusinessCatalog(data.series?.[0]?.series_id);}catch(error){showError(error);}finally{$('loading').hidden=true;}}});
 function riskTone(r){return r.stockout_risk?'red':r.status==='Sufficient Inventory'?'green':'amber';}
 function riskLabel(r){return r.status==='Sufficient Inventory'?'Sufficient for delivery-time demand and backup stock':r.status==='Reorder Attention'?'Backup stock needs attention':r.status==='Stockout Risk'?'Stock may run out before delivery':r.status==='Excess Inventory Attention'?'Possible excess stock':Context.businessText(r.status);}
 function notice(message){$('mode-notice').textContent=message;$('mode-notice').hidden=!message;}
@@ -40,6 +42,7 @@ function setModeLabels(){
   (business?$('mode-business'):$('mode-demo')).setAttribute('aria-current','true');
   if(features){$('mode-business').classList.toggle('mode-unavailable',!features.upload_enabled);if($('upload-availability'))$('upload-availability').hidden=features.upload_enabled;$('mode-business').textContent=features.upload_enabled?'Analyse My Business':'Analyse My Business · Temporarily unavailable';$('mode-business').setAttribute('aria-label',features.upload_enabled?'Analyse My Business':'Analyse My Business · Temporarily unavailable. Use Synthetic Demo for now.');}
   if(business){
+    if(page==='dashboard'){document.querySelector('.page-heading h1').textContent='Business Risk Overview';document.querySelector('.page-heading p').textContent='Prioritise stock issues across your products, then review the financial decision.';document.querySelector('.topbar>span').innerHTML='<strong>My Business</strong><span class="divider">/</span>Business Risk Overview';document.title='Business Risk Overview · MarginGuard — Retail Risk & Financial Decision Intelligence';}
     $('business-data-context').innerHTML='<div class="context-title"><strong>Your uploaded sales</strong><span class="tag neutral">Temporary session</span></div><p>Review your inventory and purchasing assumptions before making decisions.</p><details class="source-details"><summary>Data source, dates and assumptions</summary><p>Daily sales come from your CSV; the source is not independently verified. No business account is connected. Forecasts start after your selected history, not automatically today. Missing days are unknown and are not filled with zero.</p><p>Prices, costs and stock require your review. Temporary uploads may disappear after expiry or a server restart; keep your original CSV. No currency conversion.</p></details>';
     $('sidebar-data-source').textContent='User-uploaded business data · anonymous temporary session';
     $('source-tag').textContent='User-uploaded data';
@@ -54,7 +57,7 @@ function setModeLabels(){
   }
 }
 function linkContext(series){
-  const query=business?new URLSearchParams({mode:'business',dataset:datasetId,series:series.series_id}):new URLSearchParams({item_id:series.item_id,store_id:series.store_id});
+  const query=business?new URLSearchParams({mode:'business',dataset:datasetId,revision,series:series.series_id}):new URLSearchParams({item_id:series.item_id,store_id:series.store_id});
   if(synthetic&&!business)query.set('mode','synthetic');
   history.replaceState(null,'','?'+query);document.querySelectorAll('[data-business-link]').forEach(a=>a.search='?'+query);
 }
@@ -70,9 +73,18 @@ function populateCatalog(preferred){
 }
 async function loadBusinessCatalog(preferredId){
   const data=await Upload.request(`/api/business/datasets/${encodeURIComponent(datasetId)}/catalog`);
-  revision=data.revision;catalog=data.series;datasetId=data.dataset_id||datasetId;Upload.setActive(datasetId);
+  if(!initialContextChecked&&queryAtStart.get('revision')&&queryAtStart.get('revision')!==data.revision)throw Error('This link uses an older data version. Open Analyse My Business again to review the current dataset; no inputs have been imported.');
+  initialContextChecked=true;revision=data.revision;catalog=data.series;datasetId=data.dataset_id||datasetId;Upload.setActive(datasetId);
   $('business-dataset-actions').hidden=false;$('dataset-status').textContent='Confirmed temporary dataset · '+(data.meta?.currency||'')+' · '+({'exclusive':'Tax excluded','inclusive':'Tax included'}[data.meta?.tax_basis]||'Tax treatment unspecified')+' · '+(data.meta?.time_zone||'');
-  populateCatalog(catalog.find(s=>s.series_id===preferredId));await load();
+  if(riskView)await riskView.setDataset({...data,dataset_id:datasetId});
+  if(!catalog.length){
+    state=null;$('series-selection').hidden=true;$('content').hidden=true;$('loading').hidden=true;
+    const params=new URLSearchParams({mode:'business',dataset:datasetId,revision});
+    if(page!=='dashboard'){location.replace('/?'+params);return;}
+    history.replaceState(null,'','?'+params);document.querySelectorAll('[data-business-link]').forEach(a=>a.search='?'+params);
+    notice('Your products are listed below, but no selected history has 42 consecutive known days. Review the data checks or upload a longer sales history. No forecast or financial result has been invented.');return;
+  }
+  notice('');populateCatalog(catalog.find(s=>s.series_id===preferredId));await load();
 }
 function requestBody(inputs){
   if(business)return {...inputs,series_id:state.context.series_id,revision:state.context.revision,currency:currency()};
@@ -117,8 +129,8 @@ async function populate(gen){
       catch(error){if(error.name==='AbortError')throw error;note='Saved assumptions could not be assessed: '+Context.friendlyError(error);}
     }
     if(gen!==generation)return;
-    $('overview-risk-kpi').innerHTML=kpi('Inventory Risk · assumption',risk?riskLabel(risk):'Not assessed',note,true);
-    $('overview-assumptions').textContent=risk?note+' Review inventory and supplier assumptions on Inventory & Risk.':'Inventory has not been assessed. Enter your stock count, supplier delivery time and backup stock target. Sales records do not tell us your current inventory.';
+    $('overview-risk-kpi').innerHTML=kpi(business?'Manual Scenario Risk':'Inventory Risk · assumption',risk?riskLabel(risk):'Not assessed',business?'This tab’s editable assumptions · separate from confirmed stock above':note,true);
+    $('overview-assumptions').textContent=business?(risk?'Manual scenario risk uses this tab’s saved assumptions and may differ from the confirmed inventory snapshot. Review confirmed product risks in Business Risk Overview above.':'Manual scenario inputs have not been assessed. Confirmed inventory snapshot risks, if provided, are shown in Business Risk Overview above. Enter or explicitly import assumptions on Inventory & Risk for a separate manual assessment.'):(risk?note+' Review inventory and supplier assumptions on Inventory & Risk.':'Inventory has not been assessed. Enter your stock count, supplier delivery time and backup stock target. Sales records do not tell us your current inventory.');
   }
   if(page==='forecasting'){
     $('method-cards').innerHTML=Object.entries(analysis.backtest).map(([m,v])=>kpi(method(m),num(v.mae)+' units/day',m===analysis.selected_method?'Average forecast error (MAE) · lowest in the historical check':'Average forecast error (MAE) · same historical check',true)).join('')+kpi('Future forecast total',num(analysis.total_forecast_demand),'Units · refitted using selected history');
@@ -202,11 +214,12 @@ function setupForm(){
   form.querySelectorAll('button').forEach(b=>b.disabled=false);
   const restoreDefaults=()=>{fields.forEach(([name])=>form.elements[name].value=business?'':(state.defaults[name]??''));if(business){form.elements.stock_as_of.value='';form.elements.hypothetical_stock_at_origin.checked=false;}if(!inventory)form.elements.acknowledge_excluded_on_order.checked=false;timingRules(form);};
   restoreDefaults();const saved=drafts.read(context)[kind]||{};fill(form,saved);timingRules(form);
+  let snapshotReview=null;
   const results=$(inventory?'inventory-results':'scenario-results');results.hidden=true;
   form.querySelector('.form-status').textContent=Object.keys(saved).length?'Your saved inputs are restored · review any missing values before calculating':business?'Enter your business assumptions · no demo values applied':'Ready · editable Demo assumptions';
-  function changed(){calculation++;results.hidden=true;form.querySelectorAll('input').forEach(input=>input.setCustomValidity(''));timingRules(form);drafts.save(context,kind,formInputs(form));form.querySelector('.form-status').textContent='Inputs changed · calculate again to update results';if(!inventory){$('handoff-confirm').hidden=true;updateHandoffDifferences(form);}}
+  function changed(){snapshotReview?.invalidate();calculation++;results.hidden=true;form.querySelectorAll('input').forEach(input=>input.setCustomValidity(''));timingRules(form);drafts.save(context,kind,formInputs(form));form.querySelector('.form-status').textContent='Inputs changed · calculate again to update results';if(!inventory){$('handoff-confirm').hidden=true;updateHandoffDifferences(form);}}
   form.oninput=changed;form.onchange=changed;
-  form.querySelector('.reset').onclick=()=>{calculation++;drafts.clear(context);restoreDefaults();results.hidden=true;$('error').hidden=true;$('retry-connection').hidden=true;form.querySelector('.form-status').textContent=business?'Current context cleared · enter assumptions':'Current context cleared · disclosed Demo assumptions restored';if(!inventory)setupHandoff(form,changed);};
+  form.querySelector('.reset').onclick=()=>{snapshotReview?.invalidate();calculation++;drafts.clear(context);restoreDefaults();results.hidden=true;$('error').hidden=true;$('retry-connection').hidden=true;form.querySelector('.form-status').textContent=business?'Current context cleared · enter assumptions':'Current context cleared · disclosed Demo assumptions restored';if(!inventory)setupHandoff(form,changed);};
   form.onsubmit=async event=>{
     event.preventDefault();timingRules(form);if(!validateForm(form)){results.hidden=true;const invalid=form.querySelector(':invalid');form.querySelector('.form-status').textContent=invalid?.validationMessage||'Review the highlighted input and try again.';return;}
     const values=formInputs(form),token=++calculation;drafts.save(context,kind,values);
@@ -217,6 +230,7 @@ function setupForm(){
     finally{if(gen===generation){buttons.forEach(b=>b.disabled=false);form.querySelectorAll('input').forEach(i=>i.readOnly=false);}}
   };
   if(!inventory){$('scenario-currency').textContent='14 days · '+currency();setupReferences(form,changed);setupHandoff(form,changed);}
+  if(business&&Risk)snapshotReview=Risk.attachSnapshot({form,snapshot:state.inventory_import,context,kind,currentValues:()=>formInputs(form),onApply:values=>{fill(form,values);changed();},isCurrent:()=>gen===generation&&state?.context?.revision===context.revision,request:Upload.request});
   if(Object.keys(saved).length&&form.checkValidity())setTimeout(()=>{if(gen===generation)form.requestSubmit();},0);
 }
 function setupReferences(form,changed){

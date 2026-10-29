@@ -80,7 +80,25 @@ def perform(action, payload, limits=None):
                            'start_date': str(result['analysis']['history_start']),
                            'end_date': str(result['analysis']['history_end']),
                            'observations': result['analysis']['observations']})
-        return {'meta': pending['meta'], 'report': pending['report'], 'series': series}
+        # Preserve quality metadata for every uploaded combination. Entries
+        # without a confirmed forecast never enter the single-series engine.
+        ready = {'meta': pending['meta'], 'report': pending['report'], 'series': series,
+                 'catalog_series': pending['series']}
+        from batch_inventory import build_risk_overview
+        ready['risk_overview'] = build_risk_overview(ready, max_series=limits.get('max_series', 100))
+        return ready
+    if action == 'inventory_upload':
+        from inventory_csv import parse_inventory_csv
+        from batch_inventory import build_risk_overview
+        parsed = parse_inventory_csv(base64.b64decode(payload['content'], validate=True),
+                                     as_of_date=date.fromisoformat(payload['as_of_date']),
+                                     max_rows=limits.get('max_series', 100))
+        inventory = dict(parsed, excess_cover_days=payload['excess_cover_days'],
+                         assume_no_on_order=payload['assume_no_on_order'])
+        # Only server-owned saved predictions are passed into this operation.
+        ready = dict(payload['ready'], inventory=inventory)
+        inventory['overview'] = build_risk_overview(ready, max_series=limits.get('max_series', 100))
+        return {'inventory': inventory}
     if action == 'inventory':
         from inventory import inventory_risk
         return inventory_risk(payload['item_id'], payload['daily_demand'], **payload['inputs'])
@@ -142,7 +160,7 @@ def main():
         message = json.load(sys.stdin)
         limits = message.get('limits', {})
         result = serial(perform(message['action'], message['payload'], limits))
-        if message['action'] in ('parse', 'confirm'):
+        if message['action'] in ('parse', 'confirm', 'inventory_upload'):
             size = len(json.dumps(result, allow_nan=False, separators=(',', ':')).encode('utf-8'))
             if size > limits.get('max_dataset_bytes', 20 * 1024 * 1024):
                 raise CapacityError('normalized_too_large', 'Processed data exceeds the temporary limit. Select fewer rows or products.')

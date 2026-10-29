@@ -255,10 +255,130 @@ class BusinessStore:
             db.commit()
         return new_revision
 
-    def delete(self, owner, identifier, state=None):
-        self.load(owner, identifier, state=state)
+    def _inventory_target(self, db, owner, identifier, revision, now):
+        """Read the exact ready sales version inside the caller's transaction."""
+        row = db.execute('SELECT * FROM datasets WHERE id=? AND owner=?',
+                         (identifier, owner)).fetchone()
+        if row is None:
+            raise BusinessError('dataset_not_found', 'This temporary dataset is not available to this session.', 404)
+        if row['expires'] <= now:
+            raise BusinessError('dataset_expired', 'The sales dataset expired. Upload it again.', 410)
+        if row['state'] != 'ready':
+            raise BusinessError('dataset_state', 'Confirm the sales dataset before adding inventory.', 409)
+        if row['revision'] != revision:
+            raise BusinessError('revision_conflict', 'The dataset version changed. Reload its catalog.', 409)
+        return row
+
+    def save_inventory_pending(self, owner, dataset_id, revision, payload):
+        """Stage inventory independently; never replace pending or ready sales."""
+        if not isinstance(payload, dict) or not isinstance(payload.get('inventory'), dict):
+            raise BusinessError('invalid_inventory_payload', 'Provide a validated inventory snapshot.')
+        # Bind the target on the server. Extra payload keys cannot replace sales
+        # fields or override the target/version supplied by the service.
+        bound = {'target_dataset_id': dataset_id, 'base_dataset_revision': revision,
+                 'inventory': payload['inventory']}
+        text = json.dumps(bound, separators=(',', ':'), allow_nan=False)
+        size = len(text.encode('utf-8'))
+        if size > self.max_dataset_bytes:
+            raise BusinessError('normalized_too_large', 'Inventory data exceeds the temporary dataset limit.', 413)
+        identifier, upload_revision, now = secrets.token_hex(16), secrets.token_hex(16), self.clock()
         with self._connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            session = self._session(db, owner, now)
+            target = self._inventory_target(db, owner, dataset_id, revision, now)
+            previous = db.execute("SELECT COALESCE(SUM(bytes),0) FROM datasets WHERE owner=? AND state='inventory_pending'",
+                                  (owner,)).fetchone()[0]
+            used = db.execute('SELECT COALESCE(SUM(bytes),0) FROM datasets').fetchone()[0]
+            if used - previous + size > self.max_bytes:
+                raise BusinessError('storage_capacity', 'Temporary storage is full. Try again later.', 429)
+            db.execute("DELETE FROM datasets WHERE owner=? AND state='inventory_pending'", (owner,))
+            db.execute('INSERT INTO datasets VALUES (?,?,?,?,?,?,?)',
+                       (identifier, owner, upload_revision, 'inventory_pending',
+                        min(now + self.pending_ttl, session['expires'], target['expires']), text, size))
+            db.commit()
+        return identifier, upload_revision
+
+    def confirm_inventory(self, owner, dataset_id, revision, upload_id, upload_revision):
+        """Atomically attach one inventory snapshot to an unchanged sales version.
+
+        Return the committed standard record (including decoded payload), not a
+        second read that could observe a concurrent replacement after commit.
+        """
+        now = self.clock()
+        with self._connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            self._session(db, owner, now)
+            target = self._inventory_target(db, owner, dataset_id, revision, now)
+            pending = db.execute('SELECT * FROM datasets WHERE id=? AND owner=?',
+                                 (upload_id, owner)).fetchone()
+            if pending is None or pending['state'] != 'inventory_pending':
+                raise BusinessError('dataset_not_found', 'This inventory upload is not available to this session.', 404)
+            if pending['expires'] <= now:
+                raise BusinessError('dataset_expired', 'The inventory upload expired. Upload it again.', 410)
+            data = json.loads(pending['payload'])
+            if data.get('target_dataset_id') != dataset_id:
+                raise BusinessError('dataset_not_found', 'This inventory upload is not available for this dataset.', 404)
+            if pending['revision'] != upload_revision or data.get('base_dataset_revision') != revision:
+                raise BusinessError('revision_conflict', 'The inventory or sales version changed. Validate the inventory again.', 409)
+            if not isinstance(data.get('inventory'), dict):
+                raise BusinessError('invalid_inventory_payload', 'Provide a validated inventory snapshot.')
+            payload = json.loads(target['payload'])
+            # No other fields from the inventory upload are merged into sales.
+            payload['inventory'] = data['inventory']
+            text = json.dumps(payload, separators=(',', ':'), allow_nan=False)
+            size = len(text.encode('utf-8'))
+            if size > self.max_dataset_bytes:
+                raise BusinessError('normalized_too_large', 'Sales and inventory exceed the temporary dataset limit.', 413)
+            used = db.execute('SELECT COALESCE(SUM(bytes),0) FROM datasets').fetchone()[0]
+            if used - target['bytes'] - pending['bytes'] + size > self.max_bytes:
+                raise BusinessError('storage_capacity', 'Temporary storage is full. Try again later.', 429)
+            new_revision = secrets.token_hex(16)
+            db.execute('UPDATE datasets SET revision=?,payload=?,bytes=? WHERE id=? AND owner=?',
+                       (new_revision, text, size, dataset_id, owner))
+            db.execute('DELETE FROM datasets WHERE id=? AND owner=?', (upload_id, owner))
+            committed = dict(target, revision=new_revision, payload=payload, bytes=size)
+            db.commit()
+        return committed
+
+    def delete_inventory_pending(self, owner, dataset_id, upload_id):
+        """Delete only this owner's inventory draft bound to this exact target."""
+        now = self.clock()
+        with self._connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            self._session(db, owner, now)
+            pending = db.execute('SELECT * FROM datasets WHERE id=? AND owner=?',
+                                 (upload_id, owner)).fetchone()
+            if pending is None or pending['state'] != 'inventory_pending':
+                raise BusinessError('dataset_not_found', 'This inventory upload is not available to this session.', 404)
+            if json.loads(pending['payload']).get('target_dataset_id') != dataset_id:
+                raise BusinessError('dataset_not_found', 'This inventory upload is not available for this dataset.', 404)
+            if pending['expires'] <= now:
+                raise BusinessError('dataset_expired', 'The inventory upload expired. Upload it again.', 410)
+            db.execute('DELETE FROM datasets WHERE id=? AND owner=?', (upload_id, owner))
+            db.commit()
+
+    def delete(self, owner, identifier, state=None):
+        now = self.clock()
+        with self._connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            self._session(db, owner, now)
+            row = db.execute('SELECT * FROM datasets WHERE id=? AND owner=?', (identifier, owner)).fetchone()
+            if row is None:
+                raise BusinessError('dataset_not_found', 'This temporary dataset is not available to this session.', 404)
+            if row['expires'] <= now:
+                raise BusinessError('dataset_expired', 'The temporary dataset expired. Upload it again.', 410)
+            if state and row['state'] != state:
+                raise BusinessError('dataset_state', 'The dataset is not in the required state.', 409)
+            if row['state'] == 'ready':
+                # Delete only inventory drafts attached to this sales dataset.
+                # Sales drafts, other owners and active capacity leases survive.
+                drafts = db.execute("SELECT id,payload FROM datasets WHERE owner=? AND state='inventory_pending'",
+                                    (owner,)).fetchall()
+                for draft in drafts:
+                    if json.loads(draft['payload']).get('target_dataset_id') == identifier:
+                        db.execute('DELETE FROM datasets WHERE id=? AND owner=?', (draft['id'], owner))
             db.execute('DELETE FROM datasets WHERE id=? AND owner=?', (identifier, owner))
+            db.commit()
 
     def delete_session(self, owner):
         with self._connect() as db:

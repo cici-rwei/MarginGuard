@@ -75,6 +75,30 @@ def _timeout():
     return current_app.config.get('BUSINESS_WORKER_TIMEOUT', 5)
 
 
+def _csv_upload():
+    """One bounded in-memory CSV; client filenames are never filesystem paths."""
+    _query()
+    if request.mimetype != 'multipart/form-data':
+        raise BusinessError('multipart_required', 'Submit one CSV using multipart/form-data.', 415)
+    if set(request.files) != {'file'} or len(request.files.getlist('file')) != 1:
+        raise BusinessError('file_required', 'Choose exactly one CSV file.')
+    if any(len(request.form.getlist(key)) != 1 for key in request.form):
+        raise BusinessError('duplicate_parameter', 'Repeated form parameters are not supported.')
+    if sum(len(key.encode('utf-8')) + len(value.encode('utf-8'))
+           for key, value in request.form.items()) > 16 * 1024:
+        raise BusinessError('form_too_large', 'Upload declarations exceed their 16 KiB limit.', 413)
+    file = request.files['file']
+    filename = file.filename or ''
+    if len(filename) > 255 or '\x00' in filename or filename.rsplit('.', 1)[-1].lower() != 'csv':
+        file.close()
+        raise BusinessError('unsupported_file_type', 'Choose a .csv file.', 415)
+    try:
+        content = file.stream.read(g.business_store.max_file_bytes + 1)
+    finally:
+        file.close()
+    return content, request.form.to_dict()
+
+
 def create_business_blueprint():
     bp = Blueprint('business', __name__, url_prefix='/api/business')
 
@@ -83,12 +107,13 @@ def create_business_blueprint():
         # Limits are set before accessing form/json streams, not after parsing.
         file_limit = current_app.config.get('BUSINESS_MAX_FILE_BYTES', MAX_FILE_BYTES)
         upload_limit = file_limit + (128 * 1024 if current_app.config.get('PUBLIC_MODE') else 1024 * 1024)
-        request.max_content_length = upload_limit if request.endpoint == 'business.upload_csv' else 32768
+        upload_endpoints = ('business.upload_csv', 'business.inventory_upload_csv')
+        request.max_content_length = upload_limit if request.endpoint in upload_endpoints else 32768
         # MultipartDecoder also buffers file chunks (normally 64 KiB). Keep its
         # buffer above that size, then enforce our smaller metadata budget below.
         request.max_form_memory_size = 128 * 1024
         request.max_form_parts = 8
-        if request.endpoint == 'business.template_csv':
+        if request.endpoint in ('business.template_csv', 'business.inventory_template_csv'):
             return None
         g.business_review_bootstrap = False
         if not current_app.config.get('ENABLE_BUSINESS_UPLOAD', False):
@@ -109,9 +134,10 @@ def create_business_blueprint():
             store.global_rate('requests', 240, 60)
             if request.endpoint == 'business.browser_session' and request.method == 'GET':
                 store.global_rate('session_bootstrap', 20, 60)
-            if request.endpoint == 'business.upload_csv':
+            if request.endpoint in upload_endpoints:
                 store.global_rate('uploads', 12, 60)
-            if request.endpoint in ('business.confirm_upload', 'business.inventory_calculation', 'business.scenario_calculation'):
+            if request.endpoint in ('business.confirm_upload', 'business.inventory_calculation', 'business.scenario_calculation',
+                                    'business.confirm_inventory_upload'):
                 store.global_rate('calculations', 60, 60)
         store.cleanup()
         g.business_store = store
@@ -167,6 +193,13 @@ def create_business_blueprint():
         return send_file(path, mimetype='text/csv; charset=utf-8', as_attachment=True,
                          download_name='MarginGuard_daily_sales_template.csv')
 
+    @bp.get('/inventory-template.csv')
+    def inventory_template_csv():
+        _query()
+        path = Path(__file__).resolve().parent / 'examples' / 'business_csv' / 'inventory_template.csv'
+        return send_file(path, mimetype='text/csv; charset=utf-8', as_attachment=True,
+                         download_name='MarginGuard_inventory_template.csv')
+
     @bp.get('/session')
     def browser_session():
         _query()
@@ -200,25 +233,8 @@ def create_business_blueprint():
 
     @bp.post('/uploads')
     def upload_csv():
-        _query()
-        if request.mimetype != 'multipart/form-data':
-            raise BusinessError('multipart_required', 'Submit one CSV using multipart/form-data.', 415)
-        if set(request.files) != {'file'} or len(request.files.getlist('file')) != 1:
-            raise BusinessError('file_required', 'Choose exactly one CSV file.')
-        if any(len(request.form.getlist(key)) != 1 for key in request.form):
-            raise BusinessError('duplicate_parameter', 'Repeated form parameters are not supported.')
-        if sum(len(key.encode('utf-8')) + len(value.encode('utf-8'))
-               for key, value in request.form.items()) > 16 * 1024:
-            raise BusinessError('form_too_large', 'Upload declarations exceed their 16 KiB limit.', 413)
-        file = request.files['file']
-        filename = file.filename or ''
-        if len(filename) > 255 or '\x00' in filename or filename.rsplit('.', 1)[-1].lower() != 'csv':
-            raise BusinessError('unsupported_file_type', 'Choose a .csv file.', 415)
-        try:
-            content = file.stream.read(g.business_store.max_file_bytes + 1)
-        finally:
-            file.close()
-        result = service.upload(g.business_store, g.business_owner, content, request.form.to_dict(), _timeout())
+        content, parameters = _csv_upload()
+        result = service.upload(g.business_store, g.business_owner, content, parameters, _timeout())
         return jsonify(result), 201
 
     @bp.post('/uploads/<identifier>/confirm')
@@ -242,6 +258,28 @@ def create_business_blueprint():
     def business_analysis(identifier):
         return jsonify(service.analysis(g.business_store, g.business_owner, identifier,
                                         _query(('series_id', 'revision'))))
+
+    @bp.get('/datasets/<identifier>/inventory-risk')
+    def business_inventory_risk(identifier):
+        return jsonify(service.risk_overview(g.business_store, g.business_owner, identifier,
+                       _query(('revision',), ('risk', 'store', 'search', 'sort'))))
+
+    @bp.post('/datasets/<identifier>/inventory-uploads')
+    def inventory_upload_csv(identifier):
+        content, parameters = _csv_upload()
+        result = service.upload_inventory(g.business_store, g.business_owner, identifier,
+                                          content, parameters, _timeout())
+        return jsonify(result), 201
+
+    @bp.post('/datasets/<identifier>/inventory-uploads/<upload_id>/confirm')
+    def confirm_inventory_upload(identifier, upload_id):
+        return jsonify(service.confirm_inventory(g.business_store, g.business_owner, identifier, upload_id, _body(), _timeout())), 201
+
+    @bp.delete('/datasets/<identifier>/inventory-uploads/<upload_id>')
+    def delete_inventory_upload(identifier, upload_id):
+        _query()
+        g.business_store.delete_inventory_pending(g.business_owner, identifier, upload_id)
+        return '', 204
 
     @bp.post('/datasets/<identifier>/inventory')
     def inventory_calculation(identifier):

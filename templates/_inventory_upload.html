@@ -1,0 +1,17 @@
+<details id="inventory-upload-panel" class="card inventory-upload-panel">
+  <summary>Add or replace a stock snapshot · optional CSV</summary>
+  <p>Sales records do not tell us how much stock you hold. Add stock counts and supplier assumptions to assess the full product list, or continue with manual inputs for one product.</p>
+  <p><a class="text-link" href="/api/business/inventory-template.csv">Download inventory CSV template</a></p>
+  <div class="note">Use closing stock on each product’s last selected sales date, shown as the required stock date in the risk list. A different date cannot be assessed automatically. Product and Store must match your sales file exactly.</div>
+  <form id="inventory-upload-form">
+    <div class="form-grid">
+      <div class="field"><label for="inventory-csv-file">Inventory CSV</label><input id="inventory-csv-file" name="file" type="file" accept=".csv,text/csv" required><small>Private temporary storage uses the same session and file-size limit as your sales upload. Confirming this snapshot does not replace sales history.</small></div>
+      <div class="field"><label for="inventory-excess-cover">Excess Stock Warning After</label><input id="inventory-excess-cover" name="excess_cover_days" type="number" min="0.01" max="3650" step="0.01" value="30" required><small>Days of stock cover. This is your chosen policy, not an industry benchmark. Review the 30-day starting assumption.</small></div>
+    </div>
+    <label class="check-row"><input id="inventory-no-on-order" type="checkbox" name="assume_no_on_order">For blank Stock Already Ordered values only, I confirm that no stock is on order. Use zero for those blanks.</label>
+    <p class="muted">Leave this unchecked if orders are unknown. Unknown values stay unknown and the affected products remain unassessed. Recorded positive orders are not changed.</p>
+    <div class="form-actions"><button class="primary" type="submit">Validate inventory CSV</button><span id="inventory-upload-status" role="status"></span></div>
+  </form>
+  <div id="inventory-upload-errors" class="alert danger" role="alert" hidden></div>
+  <div id="inventory-upload-report" hidden></div>
+</details>

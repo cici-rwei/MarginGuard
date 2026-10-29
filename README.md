@@ -4,7 +4,7 @@ MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运�
 
 当前提供两个工作空间：
 
-- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。`Analyse My Business` 已正式开放受限临时CSV分析，通过匿名会话处理用户数据；无需注册，不提供长期保存。流程为 **Upload → Validate → Select Product & Store → Forecast → Inventory → Financial Scenario → Decision Summary**。
+- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。`Analyse My Business` 提供受限临时 CSV 分析，通过匿名会话处理用户数据；无需注册，不提供长期保存。流程为 **Sales + Optional Inventory → Validate → Batch Forecast → Business Risk Overview → Review Product → Financial Decision**。
 - **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
 
 企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)；当前版本、功能开关及最新公网验收以 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md) 为准。此前本地验收见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)；旧阶段报告是当时的历史记录。 本轮已完成受控安全检查及正式开放后的无凭证API、两套独立浏览器复验；公开CSV可用，详细通过项及未验证边界见该验收报告。
@@ -41,8 +41,8 @@ python app.py
 1. 启动网站，打开 **http://127.0.0.1:5050/?mode=business**。
 2. 选择 `examples/business_csv/synthetic_84_days.csv`，明确选择 AUD 或 USD、经营时区及统一税额口径，并确认有权分析该数据、销量是与退货分开的销售数量。
 3. 点击 **Validate CSV**，查看记录预览、缺失情况和连续区间；确认所选 84 天历史。
-4. 切换商品/门店，查看 Overview 和 Forecast。此时库存显示 **Not assessed**，上传模式不套用 M5 库存、成本或预算默认值。
-5. 在 Inventory & Risk 输入假设，并确认库存日期与预测原点一致，或明确选择在该原点使用假设库存。
+4. 首页显示 **Business Risk Overview**，列出全部上传组合。有效并选中的历史批量生成预测；历史不足、未选历史或缺库存均明确为 **Not assessed**。
+5. 可展开 **Add or replace a stock snapshot** 上传独立库存 CSV，检查匹配及日期后确认。也可保留原来的单品手动库存分析，并明确库存时点或历史时点假设。
 6. 在 Financial Decision Lab 填写财务假设，比较 Wait、Reorder、Discount；查看可行性、推荐理由与 Purchasing Decision Summary。
 
 合成样本是接口与教学演示数据，不是 Walmart、ABS 或真实企业记录，其预测效果不能作为真实预测准确率证据。还可上传 `synthetic_multi_series.csv` 验证多商品、多门店切换和草稿隔离；其数值同样全部合成。完整字段规则与可复现的假设案例见 [examples/business_csv/README.md](examples/business_csv/README.md)。
@@ -60,6 +60,10 @@ python app.py
 业务页面之间传递所选上下文。Demo URL 使用商品/门店 ID；上传 URL 仅携带模式与不透明的数据集/序列标识，不含私有商品名称、金额或认证令牌。ABS 页面保持独立，不将 ABS 指标混入 My Business 的 KPI。
 
 输入草稿使用当前标签页的 `sessionStorage`，按 **数据来源、数据集、版本、商品—门店序列、预测原点、币种** 隔离。库存与财务输入分别保存；CSV 明细、认证令牌、计算结果不写入 Web Storage。恢复完整输入后，重新请求 Python 计算；切换商品或数据源不会沿用另一个上下文的输入。浏览器禁用存储时仍可手动计算，但不承诺换页保留。
+
+上传模式首页以 **Business Risk Overview** 为核心；Demo 的原首页保持不变。清单按 Python 返回的风险顺序展示，支持风险、门店、商品搜索和排序。KPI 始终统计完整数据集，筛选只改变列表；组合按 Product + Store 计数，不是去重商品数。`Products Analysed` 是成功生成预测的组合数，缺库存的组合可以同时计入 `Data Incomplete`；库存主分类互斥，另显示 `Reorder Attention`，不能把五张卡简单相加。
+
+从清单进入库存或财务详情会携带数据集版本和准确系列。已确认库存可通过 **Review snapshot inputs → Apply reviewed inputs** 显式导入，建议采购量另行确认；售价、成本、预算不会被库存上传覆盖。库存快照确认后生成新版本，旧页面与旧草稿不能作为当前结果继续使用。单品手动情景不修改批量总览中的已确认快照。
 
 Inventory → Decision Lab 提供 **Use inventory assumptions** 和 **Use suggested quantity**，均先展示需要替换的字段并等待用户确认。建议量称为 **Proposed Order Quantity**，只是库存规则的结果，不是全局最优采购量。已有在途库存大于零时禁止自动转移；若要手动模拟，必须确认这是排除既有在途数量及成本的独立情景。
 
@@ -94,6 +98,24 @@ Inventory → Decision Lab 提供 **Use inventory assumptions** 和 **Use sugges
 过期在请求时即检查，后台周期清理处理过期存储；物理删除不承诺发生在到期的同一秒。重启、部署或临时磁盘丢失可能使数据提前不可用。删除数据、确认替换数据集或会话过期后不能恢复；不要把此系统用作唯一备份。不要上传客户、支付或其他个人信息。
 
 主要后端入口包括 `GET /api/business/session`、`POST /api/business/uploads`、确认接口、私有 catalog/analysis/inventory/scenarios 接口及 DELETE 接口。API 合约、安全测试和限制见 [PHASE5B_REPORT.md](PHASE5B_REPORT.md)；页面与参数保留见 [PHASE5C_REPORT.md](PHASE5C_REPORT.md) 和 [RESTRUCTURE_B_REPORT.md](RESTRUCTURE_B_REPORT.md)。
+
+### 可选库存 CSV
+
+使用 `examples/business_csv/inventory_template.csv`，必需列为：
+
+```csv
+Product,Store,Stock As Of Date,Current Stock,Supplier Lead Time,Safety Stock,On-order Units
+```
+
+其中 `On-order Units` 列可省略。其余标题必需，空白值保持未知；缺商品/门店不能关联。库存数量、备用库存和在途数量均为非负整数，最多 1,000,000 件；交货时间为 0–365 整天。日期严格为 YYYY-MM-DD 且为已结束的营业日。每个商品—门店只允许一行，即使日期不同也不能重复。
+
+`Stock As Of Date` 是营业结束后的库存日期，必须恰好等于该组合**所选销售历史最后一天**。错期不会自动滚动、回推或混用；该行保持未评估，需重新上传对齐快照，或进入单品页明确使用历史时点假设。未匹配行和缺库存组合在质量报告中分别披露。没有在途数据时不能擅自补0；只有明确勾选“无在途订单”的声明才将空白在途量视为0，已有正数不变。库存过剩覆盖阈值是用户明确设置的规划参数，表单起始值30天，不是行业基准。
+
+库存 CSV 和销售 CSV 共用每会话上传频率、文件大小、临时存储与全局计算槽限制。公开库存最多20行；不创建第二套数据库、不公开下载上传记录。先验证预览，再原子确认；确认只替换库存附件并更新版本，不改变销售历史或预测。删除销售数据集会同时删除绑定的库存草稿。重启和过期限制与销售相同。
+
+完整合成双文件案例：先确认 `synthetic_multi_series.csv` 的84天销售，再上传 `synthetic_inventory_multi_series.csv`，使用30天过剩阈值，可得到3个组合：1个缺货、1个过剩、1个交货期需求及备用目标充足。所有数据是明确构造的演示记录，不能作为实际企业风险或预测准确率证据。
+
+新增私有接口：`GET /api/business/datasets/<id>/inventory-risk`（必须提供 revision，支持 risk/store/search/sort）；`POST /api/business/datasets/<id>/inventory-uploads`；该草稿的 `/confirm` 与 DELETE。模板下载固定为 `/api/business/inventory-template.csv`。没有任意文件路径、客户端预测值或其他用户标识参数。实现及最新验收见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。
 
 ## 5. 预测、库存与财务规则
 

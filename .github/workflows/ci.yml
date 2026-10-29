@@ -41,4 +41,4 @@ jobs:
           package-manager-cache: false
       - name: Run existing browser-state unit tests
         # Node is used only for its test runner; no frontend build or npm install.
-        run: node --test tests/business_context.test.js tests/uat_business_ui.test.js
+        run: node --test tests/business_context.test.js tests/uat_business_ui.test.js tests/business_risk.test.js

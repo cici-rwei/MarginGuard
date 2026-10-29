@@ -25,7 +25,7 @@ ROOT_FILES = (
     'currency.py', 'data_loader.py', 'finance.py', 'forecast.py',
     'inventory.py', 'market_api.py', 'market_service.py', 'phase2_inputs.py',
     'run_phase1.py', 'run_phase2.py', 'runtime_config.py', 'scenario.py',
-    'synthetic_demo.py', 'upload_review.py',
+    'synthetic_demo.py', 'upload_review.py', 'inventory_csv.py', 'batch_inventory.py',
     'gunicorn.conf.py', 'wsgi.py', 'requirements.txt', 'requirements-abs.txt',
     'requirements-production.txt', '.python-version', 'render.yaml',
     '.gitignore', 'start.command',
@@ -37,7 +37,7 @@ ROOT_FILES = (
     'BUSINESS_DATA_UPLOAD_PRD.md', 'MARGINGUARD_PRODUCT_RESTRUCTURE.md',
     'PRODUCT_RESTRUCTURE_A_REPORT.md', 'SYNTHETIC_DEMO_MINIMAL_PLAN.md',
     'PUBLIC_DEPLOYMENT_REPORT.md', 'DEPLOYMENT_FILE_AUDIT.md', 'POST_DEPLOYMENT_UAT_REPORT.md',
-    'deployment_files.json',
+    'deployment_files.json', 'BULK_INVENTORY_RISK_REPORT.md',
 )
 TEST_FILES = (
     'business_fixtures.py', 'test_abs_counts.py', 'test_abs_data.py',
@@ -50,14 +50,17 @@ TEST_FILES = (
     'test_business_ui.py', 'test_restructure_b.py', 'test_synthetic_demo.py',
     'business_context.test.js', 'test_uat_templates.py', 'uat_business_ui.test.js',
     'test_upload_capacity.py', 'test_upload_admission.py', 'test_upload_review.py',
+    'test_inventory_csv.py', 'test_batch_inventory.py', 'test_inventory_store.py',
+    'test_inventory_security.py', 'test_bulk_inventory_api.py', 'test_business_risk_templates.py',
+    'business_risk.test.js',
 )
 TEMPLATE_FILES = (
-    '_business_upload.html', '_upload_review.html', 'base.html', 'dashboard.html', 'forecasting.html',
+    '_business_upload.html', '_inventory_upload.html', '_upload_review.html', 'base.html', 'dashboard.html', 'forecasting.html',
     'inventory.html', 'market.html', 'scenarios.html',
 )
 STATIC_FILES = (
     'css/style.css', 'css/market.css', 'js/main.js', 'js/market.js',
-    'js/business_upload.js', 'js/business_context.js', 'js/upload_review.js',
+    'js/business_upload.js', 'js/business_context.js', 'js/upload_review.js', 'js/business_risk.js',
 )
 SCRIPT_FILES = (
     'audit_m5.py', 'prepare_m5.py', 'prepare_abs.py',
@@ -67,7 +70,8 @@ ABS_FILES = (
     'market_quality.json', 'sources.json', 'market_data.json.gz',
     'market_catalog.json', 'build_all.json', 'business_counts.json',
 )
-EXAMPLE_FILES = ('README.md', 'synthetic_84_days.csv', 'synthetic_multi_series.csv', 'template.csv')
+EXAMPLE_FILES = ('README.md', 'synthetic_84_days.csv', 'synthetic_multi_series.csv', 'template.csv',
+                 'inventory_template.csv', 'synthetic_inventory_multi_series.csv')
 ALLOWLIST = tuple(sorted(
     list(ROOT_FILES)
     + ['tests/' + name for name in TEST_FILES]

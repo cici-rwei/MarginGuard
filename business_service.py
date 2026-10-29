@@ -133,18 +133,23 @@ def catalog(record):
     return {'dataset_id': record['id'], 'revision': record['revision'], 'meta': data['meta'],
             'context': {'source_kind': 'user_csv', 'dataset_id': record['id'],
                         'revision': record['revision'], 'currency': data['meta']['currency']},
+            'catalog_series': data.get('catalog_series', []),
+            'has_inventory': bool(data.get('inventory')),
             'series': [{key: entry[key] for key in ('series_id', 'item_id', 'store_id', 'start_date', 'end_date', 'observations')}
                        for entry in data['series']]}
 
 
 def confirm(store, owner, identifier, parameters, timeout=5):
-    checked_fields(parameters, ('revision', 'selections'))
+    checked_fields(parameters, ('revision', 'selections'), ('include_unassessed',))
+    if 'include_unassessed' in parameters and type(parameters['include_unassessed']) is not bool:
+        raise BusinessError('invalid_declaration', 'Confirm whether to keep combinations needing more data.')
     if not isinstance(parameters['revision'], str):
         raise BusinessError('invalid_revision', 'Select the upload version returned by validation.')
     with processing_slot(store, owner, timeout) as job:
         pending = store.load(owner, identifier, state='pending', revision=parameters['revision'])
         selections = parameters['selections']
-        if not isinstance(selections, list) or not 1 <= len(selections) <= store.max_series:
+        minimum = 0 if parameters.get('include_unassessed') is True else 1
+        if not isinstance(selections, list) or not minimum <= len(selections) <= store.max_series:
             raise BusinessError('invalid_selection', 'Select between 1 and %d eligible series.' % store.max_series)
         known = {entry['series_id'] for entry in pending['payload']['series']}
         seen = set()
@@ -183,11 +188,22 @@ def analysis(store, owner, identifier, parameters):
     price = result['references']['unit_price']
     cost = result['references']['unit_cost']
     defaults = {key: None for key in set(INVENTORY_FIELDS + SCENARIO_FIELDS + ('max_unmet_units',))}
+    overview = saved_risk_overview(record['payload'], store.max_series)
+    assessed = next((row for row in overview['rows'] if row['series_id'] == entry['series_id']), None)
+    inventory_import = None
+    if assessed and assessed.get('inventory_inputs') and assessed.get('risk'):
+        inventory_import = {'inputs': dict(assessed['inventory_inputs'],
+                                          stock_as_of=entry['end_date'],
+                                          hypothetical_stock_at_origin=False),
+                            'suggested_reorder_quantity': assessed['risk']['suggested_reorder_quantity'],
+                            'context': context,
+                            'provenance': 'Confirmed uploaded inventory snapshot; not independently verified.'}
     return {'item_id': entry['item_id'], 'store_id': entry['store_id'], 'context': context,
             'currency': context['currency'], 'meta': record['payload']['meta'],
             'history': [{'date': row['date'], 'units': row['units_sold']} for row in result['history']],
             'historical_units': sum(row['units_sold'] for row in result['history']),
             'analysis': engine, 'quality': result['quality'], 'defaults': defaults, 'inventory': None,
+            'inventory_import': inventory_import,
             'price_reference': price, 'cost_reference': cost, 'price': price['value'] if price else None,
             'price_date': price['date'] if price else None,
             'overview': [{'item_id': entry['item_id'], 'store_id': entry['store_id'], 'category': 'Not supplied',
@@ -195,6 +211,68 @@ def analysis(store, owner, identifier, parameters):
                           'forecast_total': engine['total_forecast_demand'], 'method': engine['selected_method'],
                           'mae': engine['backtest'][engine['selected_method']]['mae']}],
             'source_label': 'User-uploaded data · Source not independently verified'}
+
+
+def saved_risk_overview(payload, max_series):
+    """Read bounded cached results; legacy sessions get only a lightweight join."""
+    from batch_inventory import build_risk_overview
+    inventory = payload.get('inventory') or {}
+    cached = inventory.get('overview') or payload.get('risk_overview')
+    return cached if cached is not None else build_risk_overview(payload, max_series=max_series)
+
+
+def risk_overview(store, owner, identifier, parameters):
+    from batch_inventory import filter_risk_overview
+    checked_fields(parameters, ('revision',), ('risk', 'store', 'search', 'sort'))
+    risk = parameters.get('risk', 'all')
+    order = parameters.get('sort', 'priority')
+    if risk not in ('all', 'stockout', 'reorder_attention', 'excess', 'sufficient', 'not_assessed'):
+        raise BusinessError('invalid_filter', 'Choose a risk status from the list.')
+    if order not in ('priority', 'product', 'stock_asc', 'demand_desc'):
+        raise BusinessError('invalid_sort', 'Choose a supported risk-list order.')
+    if len(parameters.get('search', '')) > 80 or len(parameters.get('store', '')) > 80:
+        raise BusinessError('invalid_filter', 'Search and store filters must be at most 80 characters.')
+    record = store.load(owner, identifier, state='ready', revision=parameters['revision'])
+    overview = saved_risk_overview(record['payload'], store.max_series)
+    result = filter_risk_overview(overview, risk=risk, store=parameters.get('store') or None,
+                                  search=parameters.get('search', ''), sort=order)
+    return dict(result, dataset_id=identifier, revision=record['revision'],
+                currency=record['payload']['meta']['currency'], context=catalog(record)['context'])
+
+
+def upload_inventory(store, owner, identifier, content, parameters, timeout=5):
+    checked_fields(parameters, ('revision', 'excess_cover_days', 'assume_no_on_order'))
+    if parameters['assume_no_on_order'] not in ('true', 'false'):
+        raise BusinessError('invalid_declaration', 'Explicitly confirm whether missing open-order quantities mean no orders.')
+    if len(content) > store.max_file_bytes:
+        raise BusinessError('file_too_large', 'CSV exceeds the temporary upload limit. Choose a smaller file.', 413)
+    from phase2_inputs import number
+    warning_days = number(parameters['excess_cover_days'], 'excess_cover_days', maximum=3650)
+    if warning_days <= 0:
+        raise BusinessError('invalid_warning_days', 'Excess stock warning days must be greater than zero.', 422)
+    store.rate(owner, 'upload', 3, 600)
+    with processing_slot(store, owner, timeout) as job:
+        record = store.load(owner, identifier, state='ready', revision=parameters['revision'])
+        zone = ZoneInfo(record['payload']['meta']['time_zone'])
+        today = datetime.fromtimestamp(store.clock(), timezone.utc).astimezone(zone).date()
+        pending = run_worker(store, owner, 'inventory_upload',
+                             {'content': base64.b64encode(content).decode('ascii'),
+                              'as_of_date': str(today), 'ready': record['payload'],
+                              'excess_cover_days': str(warning_days),
+                              'assume_no_on_order': parameters['assume_no_on_order'] == 'true'},
+                             timeout, job_id=job)
+        upload_id, revision = store.save_inventory_pending(owner, identifier, parameters['revision'], pending)
+        return {'upload_id': upload_id, 'revision': revision, 'dataset_revision': record['revision'],
+                'report': pending['inventory']['report'], 'overview': pending['inventory']['overview']}
+
+
+def confirm_inventory(store, owner, identifier, upload_id, parameters, timeout=5):
+    checked_fields(parameters, ('revision', 'upload_revision'))
+    if any(not isinstance(parameters[key], str) for key in parameters):
+        raise BusinessError('invalid_revision', 'Use the dataset and inventory versions returned by validation.')
+    with processing_slot(store, owner, timeout):
+        record = store.confirm_inventory(owner, identifier, parameters['revision'], upload_id, parameters['upload_revision'])
+        return catalog(record)
 
 
 def calculate(store, owner, identifier, operation, parameters, timeout=5):

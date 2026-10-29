@@ -11,6 +11,7 @@
   {% else %}
   <script defer src="{{ url_for('static', filename='js/business_context.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/business_upload.js') }}"></script>
+  {% if request.args.get('mode') == 'business' %}<script defer src="{{ url_for('static', filename='js/business_risk.js') }}"></script>{% endif %}
   <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
   {% if upload_review_entry and not upload_review_active %}<script defer src="{{ url_for('static', filename='js/upload_review.js') }}"></script>{% endif %}
   {% endif %}
@@ -80,6 +81,7 @@
         <a href="{{ href }}" data-business-link class="flow-step {{ 'active' if page == key else '' }}" {% if page == key %}aria-current="step"{% endif %}><span class="step-number" aria-hidden="true">{{ loop.index }}</span><span>{{ step }}</span>{% if not loop.last %}<span class="step-arrow" aria-hidden="true">→</span>{% endif %}</a>
         {% endfor %}
       </nav>
+      {% block business_overview %}{% endblock %}
       <section id="series-selection" class="selection card"><div><label for="product">Product</label><select id="product" disabled><option>Loading products…</option></select></div><div><label for="store">Store</label><select id="store" disabled><option>—</option></select></div><div class="selection-meta"><span class="legend-dot"></span><span id="range">Reading historical data…</span></div></section>
       {% endif %}
       <div id="error" class="alert danger" role="alert" hidden></div>

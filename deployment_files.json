@@ -2,16 +2,16 @@
   "schema_version": 2,
   "audit_date": "2026-10-29",
   "frozen_at_utc": "2026-10-28T12:41:45.457522+00:00",
-  "scope": "post_deployment_uat_capacity_review_and_public_upload_disabled",
+  "scope": "bulk_inventory_risk_public_upload_incremental_release",
   "source": "current_project_explicit_final_package_allowlist",
-  "file_count": 119,
-  "total_bytes": 3787303,
+  "file_count": 133,
+  "total_bytes": 3981893,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "size_bytes": 1358,
-      "sha256": "f14d4ca83324d4337d5724464e877fdf0180926470cbf1ffd3b6c9df1e09ce1c",
+      "size_bytes": 1386,
+      "sha256": "9cf2df33de219bad40619a4b07e894f75f31e7e4804437e5ac6af4ff59252e73",
       "reason": "只读持续集成；Python/Node 测试，无部署秘密及数据下载",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -41,6 +41,13 @@
       "size_bytes": 7270,
       "sha256": "e0bd5612d9385d4c75251714980e1be1ef34639d80303c6357e27ee77bd48984",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "BULK_INVENTORY_RISK_REPORT.md",
+      "size_bytes": 11039,
+      "sha256": "649f7c46f8494e6262416229d5e0596c4508e8c41f1e047a344f6814bf0e8129",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -164,8 +171,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 26897,
-      "sha256": "255bac37e24868a0936d4bffb999be55b7ed07344117e9081ef8ce81739acc61",
+      "size_bytes": 30298,
+      "sha256": "f7612295ddd9a9c191bfdd40b66cfffa772a5a074b7c03203a29cd9a9b77db78",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -212,9 +219,16 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "batch_inventory.py",
+      "size_bytes": 19394,
+      "sha256": "3c7eb34d467961edcf80f0694ef0ed4a0838a869e841c9daf2c19407c7677c12",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "business_api.py",
-      "size_bytes": 13795,
-      "sha256": "e91308517c2cdbacbbc71c2429c09c3acdc6625ca894a4d8d6331660dc9d58d8",
+      "size_bytes": 15615,
+      "sha256": "0e60bc7ed7d672f7e83222c7bd7f80e7993afdd999b6620d028fd116ee6e6df3",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -234,22 +248,22 @@
     },
     {
       "path": "business_service.py",
-      "size_bytes": 15314,
-      "sha256": "c06f60c908f077fab61bd9da38bf3ffaf1feb992acbad428ed15abc14cc7725b",
+      "size_bytes": 20751,
+      "sha256": "f9ef6623be5d6de77137a3c004e0fbdba376d26cc5bccb5bc8e58f1c63e69099",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "business_store.py",
-      "size_bytes": 15803,
-      "sha256": "25ae723cb435887d28805f2b115356f36ab9e12ff55e095fba89d6eccc11af65",
+      "size_bytes": 24053,
+      "sha256": "b802970d1fdc505f874b92e1ab782a2a5f07820e3aabe206f83601269fbb0a71",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "business_worker.py",
-      "size_bytes": 8380,
-      "sha256": "f1fb7256cba8288c516995760152ad860f7911735de6f94466f3db020d96256b",
+      "size_bytes": 9627,
+      "sha256": "926b25ac20da36f81fe5db927d874d94ff2b8b6636541c28a5aa7a7d3962f849",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -325,16 +339,23 @@
     },
     {
       "path": "deployment_files.json",
-      "size_bytes": 37947,
+      "size_bytes": 42790,
       "sha256": null,
       "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "examples/business_csv/README.md",
-      "size_bytes": 7916,
-      "sha256": "f82b299cc96a487c832fb69beeeefc4aa0148d044555687201b63e8347e3a7c6",
+      "size_bytes": 9652,
+      "sha256": "5ee9fbcbf99a1e25716b7e2c7a5cd1e8c690ee36bb5eaa88655343f268037ece",
       "reason": "明确标注的合成示例、空 CSV 模板或示例说明，非企业/M5 记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "examples/business_csv/inventory_template.csv",
+      "size_bytes": 92,
+      "sha256": "abc021e92f4a1eee0afad77d78d349de4f37cc3801a7979a30cfd5dcfda023b8",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -342,6 +363,13 @@
       "size_bytes": 5080,
       "sha256": "e17cefba6b690c26204ecc41359882587e2830985d1f15763a7296b409ab7fe6",
       "reason": "明确标注的合成示例、空 CSV 模板或示例说明，非企业/M5 记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "examples/business_csv/synthetic_inventory_multi_series.csv",
+      "size_bytes": 256,
+      "sha256": "e8e53c8b47a5acadb5e596e42e9f84b92b4fb5629b871d2b015f05cb05cd58b9",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -384,6 +412,13 @@
       "size_bytes": 2783,
       "sha256": "ffdb58d9c42517c69454a22211d00450aa234b8670352abe9777546411e4495c",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "inventory_csv.py",
+      "size_bytes": 8919,
+      "sha256": "bf68dce52c6e64843bfb5e440d5402221102c6fd8cab9384ad76698615fd4aa0",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -500,8 +535,8 @@
     },
     {
       "path": "scripts/package_final.py",
-      "size_bytes": 12442,
-      "sha256": "c8f2aa854430d2225bbaaf453697c5da21e4cd00244dbd9d0e4eb825ba380def",
+      "size_bytes": 12860,
+      "sha256": "2ccb1cc87c784be2c6ace85ef4634fca714d9e3cbec073711796a3dfd9358341",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -535,8 +570,8 @@
     },
     {
       "path": "static/css/style.css",
-      "size_bytes": 18385,
-      "sha256": "30f7e28b9519b2765180747b5b25df7748f10f951ef4ccbf08adcf6d068e0c50",
+      "size_bytes": 21640,
+      "sha256": "d258f798cb1c439bb2070e8aaec1d027ad2385864a53cdfbfb3a900679eb7bc7",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -548,16 +583,23 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "static/js/business_risk.js",
+      "size_bytes": 21563,
+      "sha256": "eece92eb5e63678483bcc581a0235fbc737b88516298ab124fabcf264bad6584",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "static/js/business_upload.js",
-      "size_bytes": 9925,
-      "sha256": "dc1efd6a453986b89a5b0f2a46f9a94d101562c038afd352aace83c672f6b1c3",
+      "size_bytes": 10103,
+      "sha256": "432f41fedf8f62e1b5a0c43942d54e3c4145413a1a2c2b828c906b84870d3fde",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "static/js/main.js",
-      "size_bytes": 47309,
-      "sha256": "500e5928308b386cdc04aac2235405ff412f8bc526cf461eeb35864ea9ab510c",
+      "size_bytes": 50387,
+      "sha256": "1d010307a5c00a77dd8ad022232e6fc81c603f71c31e3a47aa0f9f679d47c242",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -590,6 +632,13 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "templates/_inventory_upload.html",
+      "size_bytes": 2175,
+      "sha256": "ed8150eec6877cbb8b58babe58d78ba32c2180aaeca02e3cf76b22e24f6e6aa0",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "templates/_upload_review.html",
       "size_bytes": 1037,
       "sha256": "24477853d5805ffc5bcae9773711cbb8d9819ecbf7ca8fa2235c67f1674f59dc",
@@ -598,15 +647,15 @@
     },
     {
       "path": "templates/base.html",
-      "size_bytes": 13867,
-      "sha256": "1a63e8f55de43ed240e54c4bff79e11c48064676a61eefd4d6a818c94e35edbd",
+      "size_bytes": 14063,
+      "sha256": "b5c2d589c6e021463aa42613bd3efdc92008801c2bcbf535353787e73d41f5d9",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "templates/dashboard.html",
-      "size_bytes": 1861,
-      "sha256": "0ab18780f111b30fd7f76dc0ab395ff1af457f648828b494bec809139c1eb46f",
+      "size_bytes": 5042,
+      "sha256": "e510add760d8e42d13d4e3182399a361eb17bde8776d49f22aef5b124a5932c3",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -653,6 +702,13 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "tests/business_risk.test.js",
+      "size_bytes": 15722,
+      "sha256": "093429abd929e78e3c2ba66e5baa2e9e37a0e7745676589c6523d95dedf2bfcd",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "tests/test_abs_counts.py",
       "size_bytes": 9695,
       "sha256": "5ca29b25d779c7484eab1e75521d908ef777d974e6d1ba0abd528a9fb871c053",
@@ -674,6 +730,20 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "tests/test_batch_inventory.py",
+      "size_bytes": 18133,
+      "sha256": "3287865acea87b28ab7e687b41f85fee332c440ec114cdb52adea6b8c3eee1a4",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_bulk_inventory_api.py",
+      "size_bytes": 12885,
+      "sha256": "b7662734f962ff4fd29ad0d3e74bd4a3d6fd62b974aa30f65db98cc66523a16f",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "tests/test_business_api.py",
       "size_bytes": 21881,
       "sha256": "b34a0cebba9adcc64319b9dc825adf4a81071f34e9ee73a228d94ea78d509b22",
@@ -692,6 +762,13 @@
       "size_bytes": 12749,
       "sha256": "3d6261a1a24d7e2bba51d0637384772f2117939c44d43ed99aff89e8be2f404a",
       "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_business_risk_templates.py",
+      "size_bytes": 4059,
+      "sha256": "d971f2b51e959c61fe8bf6625c06f22d4d019c9f29b23650a76a0c4e8f46d13a",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -734,6 +811,27 @@
       "size_bytes": 2665,
       "sha256": "586ebb96912e00bf8d34c183ebb031811c03daf4a306db64e4e4896e6e3d2982",
       "reason": "自动化测试源码；真实数据集成测试在输入缺失时显式跳过",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_inventory_csv.py",
+      "size_bytes": 8289,
+      "sha256": "24ee06b0d0b00a7785a175f2d41f2e36fdbef85d309890887a0092d95ec9c9a8",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_inventory_security.py",
+      "size_bytes": 17639,
+      "sha256": "ee0b4c57e4314382d192630bef344036bfdb75c23936abab54639f93e80da1bf",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_inventory_store.py",
+      "size_bytes": 17357,
+      "sha256": "c14704ea244fca9d13d31aec2ebbeee0fdb87c8c40600e03f34862d083aa0673",
+      "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
