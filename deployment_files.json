@@ -5,7 +5,7 @@
   "scope": "bulk_inventory_risk_public_upload_incremental_release",
   "source": "current_project_explicit_final_package_allowlist",
   "file_count": 133,
-  "total_bytes": 3987159,
+  "total_bytes": 3988548,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
@@ -45,8 +45,8 @@
     },
     {
       "path": "BULK_INVENTORY_RISK_REPORT.md",
-      "size_bytes": 15400,
-      "sha256": "9282c62425188762cc319fe8a4e6736999382ea309fcb8dcddac21a6cea7899a",
+      "size_bytes": 16789,
+      "sha256": "dd56f78965bf4d0c0426363e3307bb39548c426d8be7bea3da3580c33ad55e1e",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -172,7 +172,7 @@
     {
       "path": "README.md",
       "size_bytes": 30717,
-      "sha256": "0674c3ed7a95ebc805981e5bc706d1c73fd813a4469bced68b5fd3faf318a4f8",
+      "sha256": "1e1b1c67dda57e994cdf897565e106256bf00ee0b340f63fb7b90333dea5518b",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
       "review_status": "reviewed_deployment_candidate"
     },

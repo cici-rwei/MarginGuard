@@ -7,7 +7,7 @@ MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运�
 - **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。`Analyse My Business` 提供受限临时 CSV 分析，通过匿名会话处理用户数据；无需注册，不提供长期保存。流程为 **Sales + Optional Inventory → Validate → Batch Forecast → Business Risk Overview → Review Product → Financial Decision**。
 - **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
 
-企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。当前批量库存风险版本为 `4d5cce2c667989117e16c4a81b5045f1777be287`，Render 已为 Live；当前实现范围、测试与公网验收见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，此前 CSV 正式开放及安全验收保留在 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，此前本地交付见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)。这些旧阶段报告中的通过项属于当时版本，不代表本轮重新执行了全部安全检查。
+企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。当前批量库存风险版本为 `36dfb6933bdf3b9974eb27b06583c1c2c7e8a442`，Render 已为 Live；当前实现范围、测试与公网验收见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，此前 CSV 正式开放及安全验收保留在 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，此前本地交付见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)。这些旧阶段报告中的通过项属于当时版本，不代表本轮重新执行了全部安全检查。
 
 ## 1. 在 Mac 上独立启动
 
@@ -278,7 +278,7 @@ python scripts/cleanup_business_data.py --storage-root /absolute/private/directo
 
 ## 上线后验收与公开上传状态
 
-当前应用提交 `4d5cce2c667989117e16c4a81b5045f1777be287` 已部署为 Live。上传模式增加 **Business Risk Overview** 和可选库存 CSV；Synthetic Demo、原单品流程与 ABS 保留。当前部署、本轮真实公网测试及仍未验证的事项以 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md) 为准。
+当前应用提交 `36dfb6933bdf3b9974eb27b06583c1c2c7e8a442` 已部署为 Live。上传模式增加 **Business Risk Overview** 和可选库存 CSV；Synthetic Demo、原单品流程与 ABS 保留。当前部署、本轮真实公网测试及仍未验证的事项以 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md) 为准。
 
 **受限临时CSV分析**继续公开开放，无需验收凭证。公共上限仍为1 MiB、10,000行销售、20个商品—门店组合；库存CSV最多20行。待确认数据15分钟，匿名会话空闲30分钟或创建后2小时失效，以先到者为准。重启、休眠或部署可能使数据更早丢失，不能作为唯一备份。关闭标签页不是删除操作；请使用 Delete uploaded data 主动移除数据。M5公开接口继续关闭。
 
