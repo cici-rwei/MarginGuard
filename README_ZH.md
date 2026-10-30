@@ -1,0 +1,333 @@
+[English](README.md) | [简体中文](README_ZH.md)
+
+> **版本说明（2026-10-30）**：下方原有中文正文完整保留，其中旧应用提交、测试数量、打包命令和交付名称属于历史记录。当前已验证应用版本为 `05a48bca901657e7b76faf696aabac78453e72b2`；最新提交包是 `MarginGuard_COMP9001_Final_Source.zip`。没有 M5 数据的解压环境请先按文末“最新交付补充”设置演示开关。库存页现在可以直接上传库存 CSV，确认后自动匹配并计算；覆盖用户修改过的参数仍需确认。
+
+# MarginGuard — Retail Risk & Financial Decision Intelligence
+
+MarginGuard 面向中小型零售企业、品牌经营者、采购经理和运营分析人员，提供需求预测、库存风险与财务情景决策支持。Python 完成预测和统计计算；Flask 提供页面与 API；HTML、CSS、Vanilla JavaScript 和本地 SVG 负责交互与展示。生产运行不需要 Node.js、外部图表 CDN 或大语言模型 API。
+
+当前提供两个工作空间：
+
+- **My Business**：本地 `Explore Demo` 保留 Walmart M5；公开网站使用独立的 **Synthetic Business Demo**。`Analyse My Business` 提供受限临时 CSV 分析，通过匿名会话处理用户数据；无需注册，不提供长期保存。流程为 **Sales + Optional Inventory → Validate → Batch Forecast → Business Risk Overview → Review Product → Financial Decision**。
+- **Market Intelligence**：独立展示 ABS 官方行业统计，不用于修改商品预测或财务参数。
+
+企业上传、AUD/USD 财务上下文和 Restructure B 跨页面输入草稿均已实现。没有连接企业账户，也不执行实际采购下单。网站已部署到 [MarginGuard Online](https://marginguard-lkno.onrender.com)，无需安装 Python，也不依赖 Mac 或 Codex 开机。当前批量库存风险版本为 `36dfb6933bdf3b9974eb27b06583c1c2c7e8a442`，Render 已为 Live；当前实现范围、测试与公网验收见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，此前 CSV 正式开放及安全验收保留在 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，此前本地交付见 [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)。这些旧阶段报告中的通过项属于当时版本，不代表本轮重新执行了全部安全检查。
+
+## 1. 在 Mac 上独立启动
+
+在 VS Code 打开当前 `MarginGuard` 文件夹，或用 macOS Terminal 进入该目录：
+
+```sh
+./start.command
+```
+
+启动器切换到自己的目录，必要时创建 `.venv`，在 Flask 不可用时安装 `requirements.txt`，然后监听 **http://127.0.0.1:5050**。如果解压工具没有保留执行权限，使用 `sh start.command`。运行不依赖 Codex；保留启动服务器的终端窗口，按 Ctrl+C 停止服务。退出 Codex 不会停止由独立终端启动的服务，注销或重启 Mac 后需重新启动。
+
+也可手动执行：
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python app.py
+```
+
+已有本地环境支持 Python 3.9+；新环境建议使用项目固定的 **Python 3.12.14**，生产依赖与版本见第 9 节。启动前可以运行 `python3 --version` 检查实际解释器。不要把其他电脑的 `.venv` 复制过来，也不要直接通过 `file://` 打开 HTML 模板。
+
+若出现连接错误，检查终端是否显示 `Running on http://127.0.0.1:5050`，重新启动后点击 **Retry connection** 或刷新。浏览器可能保留旧页面，而 Python 服务已经停止。端口冲突可用 `lsof -nP -iTCP:5050 -sTCP:LISTEN` 检查；先确认进程身份，再决定是否停止。更新代码或 ABS 快照后，应在原终端停止旧服务并重新启动。
+
+## 2. 解压最终交付包后先体验完整流程
+
+最终包 `MarginGuard_COMP9001_Final.zip` 包含源码、测试、文档、配置、ABS 轻量快照和明确标注的合成 CSV。它**不包含 M5 原始记录、处理后销量、回测实际值、预测 JSON 或旧 M5 数值报告**，也不是企业上传数据的备份。本地原项目中的 M5 文件仍保留。
+
+无需先恢复 M5，即可体验完整业务流程：
+
+1. 启动网站，打开 **http://127.0.0.1:5050/?mode=business**。
+2. 选择 `examples/business_csv/synthetic_84_days.csv`，明确选择 AUD 或 USD、经营时区及统一税额口径，并确认有权分析该数据、销量是与退货分开的销售数量。
+3. 点击 **Validate CSV**，查看记录预览、缺失情况和连续区间；确认所选 84 天历史。
+4. 首页显示 **Business Risk Overview**，列出全部上传组合。有效并选中的历史批量生成预测；历史不足、未选历史或缺库存均明确为 **Not assessed**。
+5. 可展开 **Add or replace a stock snapshot** 上传独立库存 CSV，检查匹配及日期后确认。也可保留原来的单品手动库存分析，并明确库存时点或历史时点假设。
+6. 在 Financial Decision Lab 填写财务假设，比较 Wait、Reorder、Discount；查看可行性、推荐理由与 Purchasing Decision Summary。
+
+合成样本是接口与教学演示数据，不是 Walmart、ABS 或真实企业记录，其预测效果不能作为真实预测准确率证据。还可上传 `synthetic_multi_series.csv` 验证多商品、多门店切换和草稿隔离；其数值同样全部合成。完整字段规则与可复现的假设案例见 [examples/business_csv/README.md](examples/business_csv/README.md)。
+
+## 3. 页面、数据来源与输入草稿
+
+| 路由 | 页面 | 用途 |
+|---|---|---|
+| `/` | Business Risk Overview（上传模式）；Business Overview（Demo） | 上传模式优先显示批量库存风险与数据问题，再进入原单品销量、预测及手动情景明细 |
+| `/forecasting` | Demand Forecasting | 历史趋势、两方法 MAE、独立的历史回测与未来预测 |
+| `/inventory` | Inventory & Risk | 库存覆盖、交货期需求、库存位置、建议额外采购量及规则说明 |
+| `/scenarios` | Financial Decision Lab | 三策略财务结果、预算/MOQ/服务约束、采购决策摘要 |
+| `/market` | Market Intelligence | 同页内五组导航与七个 ABS 分析区块 |
+
+业务页面之间传递所选上下文。Demo URL 使用商品/门店 ID；上传 URL 仅携带模式与不透明的数据集/版本/序列标识，不含私有商品名称、金额或认证令牌。ABS 页面保持独立，不将 ABS 指标混入 My Business 的 KPI。
+
+输入草稿使用当前标签页的 `sessionStorage`，按 **数据来源、数据集、版本、商品—门店序列、预测原点、币种** 隔离。库存与财务输入分别保存；CSV 明细、认证令牌、计算结果不写入 Web Storage。恢复完整输入后，重新请求 Python 计算；切换商品或数据源不会沿用另一个上下文的输入。浏览器禁用存储时仍可手动计算，但不承诺换页保留。
+
+上传模式首页以 **Business Risk Overview** 为核心；Demo 的原首页保持不变。清单按 Python 返回的风险顺序展示，支持风险、门店、商品搜索和排序。KPI 始终统计完整数据集，筛选只改变列表；组合按 Product + Store 计数，不是去重商品数。`Products Analysed` 是成功生成预测的组合数，缺库存的组合可以同时计入 `Data Incomplete`；库存主分类互斥，另显示 `Reorder Attention`，不能把五张卡简单相加。
+
+从清单进入库存或财务详情会携带数据集版本和准确系列。已确认库存可通过 **Review snapshot inputs → Apply reviewed inputs** 显式导入，建议采购量另行确认；售价、成本、预算不会被库存上传覆盖。库存快照确认后生成新版本，旧页面与旧草稿不能作为当前结果继续使用。单品手动情景不修改批量总览中的已确认快照。
+
+Inventory → Decision Lab 提供 **Use inventory assumptions** 和 **Use suggested quantity**，均先展示需要替换的字段并等待用户确认。建议量称为 **Proposed Order Quantity**，只是库存规则的结果，不是全局最优采购量。已有在途库存大于零时禁止自动转移；若要手动模拟，必须确认这是排除既有在途数量及成本的独立情景。
+
+**Reset current assumptions** 清除当前上下文的库存与财务草稿；Demo 恢复已披露的演示假设，上传模式恢复空白。删除或过期会使服务器数据失效并清理相关上传草稿。输入变化时旧结果会隐藏，旧请求不能覆盖新上下文。草稿只是操作便利，不是认证，也不等于长期保存；同一浏览器的标签页可能共享服务器会话 cookie，不应视为独立用户账户。
+
+## 4. 企业 CSV 与临时数据保护
+
+公网入口：[Analyse My Business](https://marginguard-lkno.onrender.com/?mode=business)。当前免费服务用于作品集展示和短期分析，不适合保存长期敏感商业数据。请保留自己的原始文件，不上传客户、支付或其他个人信息。
+
+必需列：`Date,Product,Store,Units Sold`；可选列：`Unit Price,Unit Cost`。使用 UTF-8 或 UTF-8 BOM，日期严格为 `YYYY-MM-DD`，每个商品—门店—日只能一行。
+
+- 负销量、非整数销量、重复键、非法日期、非法金额或标识会拒绝；重复行不会自动相加。
+- 显式 `0` 是零销量；缺失日期与空白销量是未知，不能自动补零。
+- 当前只支持 gross sold units，退货需要分开处理。声明不会证明正数从未被扣除退货，用户必须确认数据含义。
+- 每次预测必须选择至少 **42 个连续有效日**，推荐 **84 天或以上**。可明确选择完整子区间，不能跨越未知日；预测日期紧接所选历史，不会自动变成今天。
+- 价格、成本空白保持未知；历史参考价只在用户明确选择后用于假设。现有库存成本与新采购成本分别填写，不自动同时套用一个历史成本。
+- 同一数据集只使用 **AUD 或 USD**。所有金额输入须使用同一币种与税额口径；没有汇率换算或税务计算。ABS 指标仍为 AUD，不能与 USD 商品金额直接混算。
+
+容量限制按运行环境区分；公开配置更保守，实际上传面板以服务器返回的限制为准：
+
+| 项目 | 本地默认 | 当前公开环境保守配置 |
+|---|---|---|
+| CSV | 5 MiB、50,000行、100组合 | 1 MiB、10,000行、20组合；历史跨度仍最多1,096天 |
+| 待确认数据 | 15分钟后过期 | 相同 |
+| 匿名会话 | 空闲30分钟或创建后2小时，以先到者为准 | 相同；休眠/重启可提前失效 |
+| 计算 | 5秒超时、2个共享计算槽 | 5秒、1个共享槽；Linux child128 MiB，设置资源限制失败即拒绝处理 |
+| 请求频率 | 每会话10分钟3次上传、每分钟30次计算 | 保留每会话规则，另加全局每分钟240请求/20次会话建立/12次上传/60次计算准入 |
+| 私有存储 | 仓库外SQLite，单数据集20 MiB、payload总量500 MiB | 单数据集2 MiB、总payload16 MiB、最多20会话；SQLite与journal仍需额外空间 |
+
+上传在服务器端按会话校验所有权；POST/DELETE 校验 CSRF 与来源。用户文件不作为代码执行，不接受本地文件路径输入，不提供原文件下载。私有响应使用 `no-store`；不将企业数据写入 GitHub、静态目录或最终 ZIP。权限和限额不等于经过独立生产安全审计。
+
+过期在请求时即检查，后台周期清理处理过期存储；物理删除不承诺发生在到期的同一秒。重启、部署或临时磁盘丢失可能使数据提前不可用。删除数据、确认替换数据集或会话过期后不能恢复；不要把此系统用作唯一备份。不要上传客户、支付或其他个人信息。
+
+主要后端入口包括 `GET /api/business/session`、`POST /api/business/uploads`、确认接口、私有 catalog/analysis/inventory/scenarios 接口及 DELETE 接口。API 合约、安全测试和限制见 [PHASE5B_REPORT.md](PHASE5B_REPORT.md)；页面与参数保留见 [PHASE5C_REPORT.md](PHASE5C_REPORT.md) 和 [RESTRUCTURE_B_REPORT.md](RESTRUCTURE_B_REPORT.md)。
+
+### 可选库存 CSV
+
+使用 `examples/business_csv/inventory_template.csv`，必需列为：
+
+```csv
+Product,Store,Stock As Of Date,Current Stock,Supplier Lead Time,Safety Stock,On-order Units
+```
+
+其中 `On-order Units` 列可省略。其余标题必需，空白值保持未知；缺商品/门店不能关联。库存数量、备用库存和在途数量均为非负整数，最多 1,000,000 件；交货时间为 0–365 整天。日期严格为 YYYY-MM-DD 且为已结束的营业日。每个商品—门店只允许一行，即使日期不同也不能重复。
+
+`Stock As Of Date` 是营业结束后的库存日期，必须恰好等于该组合**所选销售历史最后一天**。错期不会自动滚动、回推或混用；该行保持未评估，需重新上传对齐快照，或进入单品页明确使用历史时点假设。未匹配行和缺库存组合在质量报告中分别披露。没有在途数据时不能擅自补0；只有明确勾选“无在途订单”的声明才将空白在途量视为0，已有正数不变。库存过剩覆盖阈值是用户明确设置的规划参数，表单起始值30天，不是行业基准。
+
+库存 CSV 和销售 CSV 共用每会话上传频率、文件大小、临时存储与全局计算槽限制。公开库存最多20行；不创建第二套数据库、不公开下载上传记录。先验证预览，再原子确认；确认只替换库存附件并更新版本，不改变销售历史或预测。删除销售数据集会同时删除绑定的库存草稿。重启和过期限制与销售相同。
+
+完整合成双文件案例：先确认 `synthetic_multi_series.csv` 的84天销售，再上传 `synthetic_inventory_multi_series.csv`，使用30天过剩阈值，可得到3个组合：1个缺货、1个过剩、1个交货期需求及备用目标充足。所有数据是明确构造的演示记录，不能作为实际企业风险或预测准确率证据。
+
+新增私有接口：`GET /api/business/datasets/<id>/inventory-risk`（必须提供 revision，支持 risk/store/search/sort）；`POST /api/business/datasets/<id>/inventory-uploads`；该草稿的 `/confirm` 与 DELETE。模板下载固定为 `/api/business/inventory-template.csv`。没有任意文件路径、客户端预测值或其他用户标识参数。实现及最新验收见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。
+
+## 5. 预测、库存与财务规则
+
+`forecast.py` 的原公式保持不变。最后 14 个观察日用于时间顺序回测；7-day Moving Average 使用训练尾部 7 日均值，Same-Weekday Average 使用训练尾部 28 日中的四个同星期日均值。两方法使用相同 holdout 比较 MAE，完全相同时优先 moving average。选定方法使用全部确认历史重新拟合，生成独立的未来 14 个日历日预测，回测实际值不进入对应训练窗口。
+
+`business_csv.py` 负责校验，`business_forecast.py` 适配现有预测接口。后者的 `financial_analysis_available=False` 仅说明该**预测适配结果本身**不包含财务分析；完整网页通过独立的 `finance.py` / `scenario.py` 计算财务结果，不能据此理解为当前网站不支持财务分析。
+
+| 模块 | 主要规则 |
+|---|---|
+| `inventory.inventory_risk` | 平均需求；覆盖天数=库存/平均需求；库存位置=库存+在途；目标=交货期需求+安全库存；建议额外量=max(0, ceil(目标−库存位置)) |
+| `finance.procurement` | 新采购现金=单位采购成本×采购量+运费+其他费用；单位到手成本=该金额/采购量 |
+| `finance.gross_profit` | 收入=售价×销量；分别计算现有与新增商品 COGS；毛利=收入−COGS；毛利率=毛利/收入×100 |
+| `finance.lost_sales` | 潜在流失收入=未满足数量×售价；潜在流失毛利=未满足数量×单位贡献 |
+| `scenario.simulate` | 按日扣减库存，现有库存先售出；仅到货后的新库存可销售 |
+| `scenario.compare_strategies` | 在 MOQ、预算和可选缺货上限约束下，选择三种被测试策略中未舍入毛利润最高者 |
+
+零需求的覆盖天数为 `None`；超过 14 天的交货期以 14 天平均需求外推，并明确标识。库存状态按缺货、补货关注、过剩关注、充足的优先级判断；过剩阈值由用户指定，默认演示值为 30 天。在途数量可以减少补货缺口，但没有到货日期时不假定它能满足近期销售。
+
+交货期 7 天表示第 8 天开始到货；0 表示第 1 天；≥14 天表示预测期内未到货。未满足需求视为流失，不形成积压订单。新采购现金支出不会立即全部计入当期 COGS，新运费不改变旧库存成本。零采购时非零运费/其他费用无效；零收入的毛利率为 `None`。销量预测保持小数期望值。
+
+Discount 售价=售价×(1−折扣/100)，需求=预测×(1+假设增长/100)。销量增长只是用户假设，不是已验证的价格弹性。推荐完全相同时按 Wait → Reorder → Discount；没有可行策略则不推荐。预算仅约束新增采购现金；未设置服务约束时，缺货会披露但不自动使策略不可行。没有税务、持有成本、经营费用或需求不确定区间，因此不保证实际利润或全局最优结果。
+
+AUD/USD 通过统一货币上下文传入财务函数与 API 返回，前端按币种显示；数值公式与舍入规则保持一致，未把 USD 标签直接替换成 AUD 来伪装换汇。设计背景见 [AUD_USD_CURRENCY_DESIGN.md](AUD_USD_CURRENCY_DESIGN.md)。
+
+## 6. 本地恢复 Walmart M5 Demo
+
+原开发目录已保留本地 M5，不必重复下载或重建。以下步骤用于**解压交付包后尚无 M5 生成文件的目录**；已有结果时先核对和备份，不要直接覆盖。合法取得三份 CSV，复制到 `data/raw/`，保留下载原件：
+
+- `sales_train_validation.csv`
+- `calendar.csv`
+- `sell_prices.csv`
+
+激活虚拟环境后，从项目根目录运行：
+
+```sh
+python scripts/audit_m5.py
+python scripts/prepare_m5.py --raw-dir data/raw --items FOODS_3_586 FOODS_3_252 HOUSEHOLD_1_535 HOUSEHOLD_1_334 HOBBIES_1_147 --stores CA_1 --days 365
+python run_phase1.py
+python run_phase2.py
+```
+
+然后重启网站，在 **Explore Demo** 查看恢复的数据。固定五组配置用于已有真实数据回归；其他商品需要自行选择并验证，不能据此声称原回归覆盖新配置。
+
+生成文件包括 `source_audit.json`、`processed_sales.csv`、`processed_sales.validation.json`、含回测的 `forecast_results.json`、单独未来预测 `forecast_results_future.json` 及 Phase 2 模拟结果，均留在本地。M5 预处理拒绝缺日、负销量、重复键、全零序列，并保留明确零销量；上传流程对未知数据和全零测试历史有独立报告规则，不能混同两种校验路径。
+
+Phase 1/2 CLI 使用 Python 标准库，仍可独立运行。修改情景假设时复制默认文件到另一个本地文件，再运行：
+
+```sh
+python run_phase2.py --parameters /path/to/my_assumptions.json --output /path/to/my_result.json
+```
+
+M5 来源见 [data/DATA_SOURCE.md](data/DATA_SOURCE.md)。公开展示及再分发许可目前未确认；本机有合法文件不自动意味着允许公开上传。最终打包排除原始数据、派生记录和预测，并不删除原项目文件。
+
+## 7. ABS Market Intelligence 与离线复现
+
+访问 **http://127.0.0.1:5050/market**。页面使用 `data/abs/` 已处理快照，运行时不解析 Excel；更新快照后需重启 Flask。
+
+使用的发布快照为：MHSI 2026 年 8 月、Business Indicators 2026 年第 2 季度、Business Counts 截至 2026 年 6 月。它们是已固定的历史快照，**不是自动更新的实时数据**。每项指标保留各自参考期、频率、单位、分类、调整方式、发布日期及来源。详细表格与 Series ID 见 `data/abs/sources.json`、`market_catalog.json` 及 [PHASE4A_REPORT.md](PHASE4A_REPORT.md)。
+
+- 月环比/季环比和同比由 Python 计算，公式为 `(本期/对应前期−1)×100`；缺失或非正比较基期返回 `null`，不补零。
+- Original、Seasonally Adjusted、Trend 分开；Monthly、Quarterly、Financial Year 不混用。
+- MHSI Table 19 始终标记 **Experimental**，不拼接旧 Retail Trade；COICOP 与 ANZSIC 分开。
+- ABS Business Gross Operating Profits 不是商品毛利润。官方库存销售比率是季末存量与季度流量之比，不是库存天数或企业风险评分。
+- 企业数量不等于门店数量，退出不等于破产；两个存续 cohort 分开解释。
+- ABS 金额为 AUD。My Business 为所选 AUD/USD；没有跨源货币换算或直接市场对标。
+
+只读 API：`/api/market/catalog`、`overview`、`series`、`compare`、`business-counts`、`sources`。参数对应目录中已存在的序列和口径，不接受任意本地路径。来源、筛选与 API 细节见 [PHASE4B_REPORT.md](PHASE4B_REPORT.md)。
+
+离线重新读取已下载 Excel 需要额外依赖：
+
+```sh
+python -m pip install -r requirements-abs.txt
+python scripts/prepare_abs.py --dataset all --research-dir ../../research/datasets --as-of 2026-10-28 --overwrite
+```
+
+此命令仅用于有原始研究文件并明确需要重建的环境。原工作簿不随最终 ZIP 附送；路径可指定到合法下载文件的父目录。生成器校验 `sources.json` 中的 SHA-256，不自动重新下载。`--overwrite` 明确替换选中的 ABS 输出；要保留旧输出请改用新的 `--output-dir`。可用 `--dataset market` 或 `counts` 独立处理。`--as-of` 是资料可用截止日期，不会还原另一个发布版本。
+
+ABS 来源为 Australian Bureau of Statistics，保留官方 [版权及署名条款](https://www.abs.gov.au/website-privacy-copyright-and-disclaimer)；一般 CC BY 4.0 授权受其排除条款约束。项目不使用 ABS 标志或暗示 ABS 背书。
+
+## 8. 测试与最终打包
+
+完整 Python 测试需要 Flask 及 ABS 测试依赖：
+
+```sh
+python -m pip install -r requirements-abs.txt
+PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v
+python -m pip check
+```
+
+本轮批量库存升级保留此前348项Python与29项Node测试，新增105项Python和22项Node回归。完整本地 **Python 453/453、Node 51/51通过**。GitHub CI 实际执行并通过434个Python测试方法，另19个依赖原始M5或ABS研究文件的方法未执行；unittest日志汇总为 `Ran 437`、`skipped=5`，包含整类跳过，不能将该摘要直接当作实际通过方法数。最新环境及本轮公网证据见 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md)。[POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)与[FINAL_QA_REPORT.md](FINAL_QA_REPORT.md)保留历史阶段证据，不把此前61/109/141/348等数量当作当前总数，也不把历史安全验收计为本轮复验。
+
+前端输入草稿有独立的 Node 测试；Node 仅用于开发测试，不是网页运行依赖。若本机已安装支持 `node:test` 的 Node，可执行：
+
+```sh
+node --test tests/business_context.test.js tests/uat_business_ui.test.js tests/business_risk.test.js
+```
+
+没有 M5 本地数据或原始 ABS 研究 Excel 时，对应集成测试会明确跳过；这不等于完成该数据的真实文件验证。合成测试只验证软件行为。五页实际浏览器交互及移动布局结果也单独记录在最终 QA，不以 HTTP 200 代替界面验收。
+
+生成新的最终交付包：
+
+```sh
+python scripts/package_final.py
+```
+
+默认写入项目同级的 `MarginGuard_COMP9001_Final.zip`（在当前工作结构中即 `outputs/`）。已有同名 ZIP 时拒绝覆盖；可用 `--output /path/to/a/new-name.zip` 选择新文件。打包采用明确文件白名单，写入逐文件 SHA-256 的 `MANIFEST.json` 与 `PACKAGE_SCOPE.md`，保留所需目录结构。
+
+排除：全部 M5 记录及预测、真实企业上传、临时数据库、密钥、日志、缓存、虚拟环境、研究大文件、旧 ZIP 和未审核文件。只允许明确合成或 ABS 截图。历史 Phase 1/3 打包脚本与归档仅保留原目录历史用途，不应用于当前最终交付。
+
+## 9. 生产运行与公开部署
+
+生产配置包括 `.python-version`（**3.12.14**）、`requirements-production.txt`、`wsgi.py`、`gunicorn.conf.py`、`runtime_config.py`、`render.yaml`。GitHub 使用私有仓库 `cici-rwei/MarginGuard`，仓库根目录对应当前项目目录，Render Root Directory 留空。构建使用 `pip install -r requirements-production.txt`，启动使用 `gunicorn -c gunicorn.conf.py wsgi:app`，健康检查 `/api/features`。当前上线状态以 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md) 为准；首次部署记录见 [PUBLIC_DEPLOYMENT_REPORT.md](PUBLIC_DEPLOYMENT_REPORT.md)，历史准备证据见 [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md) 与 [DEPLOYMENT_EVIDENCE.md](DEPLOYMENT_EVIDENCE.md)。
+
+用已安装的 Python 3.12.14 创建独立生产验证环境，再安装：
+
+```sh
+python3.12 -m venv .venv-production
+.venv-production/bin/python -m pip install -r requirements-production.txt
+.venv-production/bin/python -m pip check
+.venv-production/bin/gunicorn -c gunicorn.conf.py wsgi:app
+```
+
+Gunicorn 默认监听 `0.0.0.0:8000`，由 `PORT` 调整；此命令是 WSGI 启动示例，不等于公开安全部署。不要把 Flask 开发服务器直接暴露到互联网。生产应固定 Python 版本，使用平台 TLS、正确的主机校验与受信任代理拓扑。
+
+| 环境变量 | 作用 |
+|---|---|
+| `MARGINGUARD_PUBLIC=true` | 开启公开环境约束，关闭 Debug，使用 Secure cookie |
+| `MARGINGUARD_SECRET_KEY` | 至少 32 字符的随机密钥，由部署平台注入，不写入仓库或报告 |
+| `ENABLE_BUSINESS_UPLOAD` | 应用公共模式默认仍为`false`；当前Render经受控验收后显式配置为`true` |
+| `ENABLE_BUSINESS_UPLOAD_REVIEW` | 正式公开配置为`false`；临时验收门禁已关闭 |
+| `MARGINGUARD_UPLOAD_REVIEW_KEY_SHA256` / `MARGINGUARD_UPLOAD_REVIEW_DEADLINE` | 正式公开配置分别为空和`0`；不遗留受控验收权限 |
+| `ENABLE_SYNTHETIC_DEMO` | 独立开关；Render 已部署配置为 `true`，本地默认 `false` |
+| `ENABLE_M5_DEMO` | 公开配置默认 `false` |
+| `M5_PUBLIC_LICENSE_CONFIRMED` | 只有已核实实际展示/再分发权利才能设为 `true`；开关本身不授予许可 |
+| `MARGINGUARD_PRIVATE_DIR` | 仓库外的私有临时目录，不属于静态目录或公开挂载 |
+| `TRUST_REVERSE_PROXY` | 仅在已确认可信 TLS 终止代理时启用 |
+
+当前Render配置开放合成经营演示、ABS及受限临时CSV分析，关闭M5数据接口和受控review门禁。上传安全与M5许可是两个独立闸门；开放用户CSV不授予M5公开使用许可。生产访问日志只记录状态与耗时，不记录 URL 查询、cookie、请求正文或企业销售明细。合成演示不创建上传会话或 SQLite，也不保存访问者的计算结果；输入草稿仅按来源隔离保存在当前标签页。公开部署使用免费单实例方案；服务可能休眠和冷启动，不承诺企业生产 SLA。
+
+合成演示固定读取 `examples/business_csv/synthetic_84_days.csv`，历史为 2024-01-01–2024-03-24，模拟预测区间为 2024-03-25–2024-04-07。此数据是人工构造的教学样本，不是真实企业交易，固定周模式产生的 MAE 不能证明真实泛化能力。币种上下文明确定义为 AUD，并作为参数传入现有财务引擎；不进行换汇。库存、售价、成本、采购及折扣增量均为可修改的演示假设，结果由现有 Python 引擎计算。
+
+本地查看该公开演示入口：
+
+```sh
+ENABLE_SYNTHETIC_DEMO=true ENABLE_M5_DEMO=false ENABLE_BUSINESS_UPLOAD=false python app.py
+```
+
+打开 `http://127.0.0.1:5050/?mode=synthetic`。这是本地功能检查；公开环境仍须设置 `MARGINGUARD_PUBLIC=true`、由平台生成密钥并通过 HTTPS 验收。固定样本 API 为 `/api/demo/catalog`、`/api/demo/analysis`、`/api/demo/inventory`、`/api/demo/scenarios`，不接受客户端文件路径或自定义预测序列。
+
+后续更新先运行全部测试，按 `deployment_files.json` 审核并暂存必要文件，检查 `git diff --cached` 后再提交和推送。不得执行未经审计的 `git add .`。GitHub Actions 提供不含受限 M5/原 Excel 的 CI；Render 已启用 **After CI Checks Pass**，第二次自动部署已验证。免费服务位于 Singapore；公网地址为 [MarginGuard Online](https://marginguard-lkno.onrender.com)。仅根目录 Markdown 与 `deployment_files.json` 变更受构建过滤规则排除，不重启应用；代码、依赖、数据和配置仍经 CI 后部署。出现上传安全问题时先关闭公开上传和review，保留Synthetic/ABS及当前容量、全局限流和租约修复。需要回滚时选择保留这些修复的版本，或提交 `git revert` 经测试后推送；不要恢复旧宽松配置后直接开放上传，也不要强制推送覆盖历史。
+
+清理脚本可在与服务相同的系统用户和私有目录下执行：
+
+```sh
+python scripts/cleanup_business_data.py --storage-root /absolute/private/directory
+```
+
+正式课程 rubric、认可的 Advanced Topics 和 AI 披露要求仍需对照官方文件确认。提交材料见 [COMP9001_COMPLIANCE.md](COMP9001_COMPLIANCE.md)、[AI_USE_DECLARATION.md](AI_USE_DECLARATION.md)、[PADLET_DRAFT.md](PADLET_DRAFT.md) 和 [DEMO_SCRIPT_3MIN.md](DEMO_SCRIPT_3MIN.md)；未确认项不能写成已获课程批准。
+
+
+## 上线后验收与公开上传状态
+
+当前应用提交 `36dfb6933bdf3b9974eb27b06583c1c2c7e8a442` 已部署为 Live。上传模式增加 **Business Risk Overview** 和可选库存 CSV；Synthetic Demo、原单品流程与 ABS 保留。当前部署、本轮真实公网测试及仍未验证的事项以 [BULK_INVENTORY_RISK_REPORT.md](BULK_INVENTORY_RISK_REPORT.md) 为准。
+
+**受限临时CSV分析**继续公开开放，无需验收凭证。公共上限仍为1 MiB、10,000行销售、20个商品—门店组合；库存CSV最多20行。待确认数据15分钟，匿名会话空闲30分钟或创建后2小时失效，以先到者为准。重启、休眠或部署可能使数据更早丢失，不能作为唯一备份。关闭标签页不是删除操作；请使用 Delete uploaded data 主动移除数据。M5公开接口继续关闭。
+
+此前Part A体验优化及Part B正式开放的189/189项HTTPS检查，记录于 [POST_DEPLOYMENT_UAT_REPORT.md](POST_DEPLOYMENT_UAT_REPORT.md)，对应当时的 `091dd76` 应用版本。这些包含到期、重启、会话隔离及竞态的历史证据没有被记作本轮重新执行的检查。受控门禁仍关闭；实际worker超时、Render总RSS与磁盘余量、云介质取证级清理等结论须按各报告的具体执行范围解读，不能从历史通过或本地单元测试推定公网验证。免费服务用于作品集和短期分析，不适合长期保存敏感数据，也不承诺企业SLA。
+
+
+## 10. 最新交付补充：双语文档、源码包与演示（2026-10-30）
+
+### 无 M5 数据的本地启动
+
+在解压后的 `MarginGuard` 目录中，使用已安装的 Python 3.12（验证环境为3.12.14）：
+
+```sh
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+export MARGINGUARD_PUBLIC=false
+export ENABLE_M5_DEMO=false
+export ENABLE_SYNTHETIC_DEMO=true
+export ENABLE_BUSINESS_UPLOAD=true
+python app.py
+```
+
+如果你的 Python 3.12 解释器名为 `python3`，第一行改用该名称。打开 `http://127.0.0.1:5050/`，保留终端窗口。以上开关避免缺少 M5 文件时默认演示不可用；不会修改数据或上传公网。设置这些变量后也可运行 `sh start.command`。
+
+### 配套销售与库存 CSV
+
+最终源码包中的 `examples/business_csv/demo_sales_10_series.csv` 和 `demo_inventory_10_series.csv`，分别是此前两份中文文件名模拟CSV的逐字节副本，仅调整文件名。原文件为 `01_先上传销售_Kaggle模拟.csv`、`02_再上传库存_情景假设.csv`；本地原项目未另行复制这两个重命名文件，它们随源码ZIP提供。
+
+1. 在 **Analyse My Business** 先上传销售文件，选择 **USD**、`Australia/Sydney`，核对税额口径及声明，验证并确认全部历史。
+2. 进入 **Inventory & Risk → Upload Inventory CSV** 上传库存文件，检查匹配及日期，再确认快照。不要将库存文件放入销售上传框。
+3. 有效库存自动带入并计算；缺失库存仍为 **Unknown**。手动修改会使旧结果失效，覆盖已修改参数需要确认。数据版本变化后不会继续使用旧计算结果；人工库存草稿保留供审阅。
+4. 10组演示结果为4组缺货、3组积压、3组充足。`SIM_P0001 / SIM_S001` 建议额外补货 **748** 件；`SIM_P0002 / SIM_S002` 为 **1032** 件。Overview、Inventory、Decision Lab建议导入一致，库存取整已修复浮点残差多加1件的问题，真实小数仍向上取整。
+5. 财务页分别审阅并确认库存与建议量导入，成本、价格和预算仍需填写。以售价10USD、已有/新增单位成本2USD、运费及其他费用0、MOQ0、交货7天、预算10000USD、折扣/提升0为例，两笔采购现金分别为1496和2064USD，第8天到货。这不是全局最优订货量或真实企业结果。
+
+销售共1840行，库存10行；每组历史为2023-07-01至2023-12-31，预测为2024-01-01至2024-01-14。销售子集来自明确标注为合成数据、许可为CC0的 [Kaggle Retail Store Inventory Forecasting Dataset](https://www.kaggle.com/datasets/anirudhchauhan/retail-store-inventory-forecasting-dataset)；库存、交货期、备用库存及USD币种为独立测试假设，未将原数据的日初库存冒充期末库存，未使用源文件预先计算的需求预测。源码包内 `examples/business_csv/DEMO_PAIR_SOURCE.md` 保留说明；没有新增企业敏感数据。
+
+### 最终源码包与验证边界
+
+- 最终包包含 `README.md`（英文）及 `README_ZH.md`（中文）、完整网站运行源码、必要资源、测试、ABS轻量快照、合法演示CSV、Padlet材料及逐文件哈希清单。原始M5与派生记录、用户上传、会话、密钥、缓存和旧ZIP均排除。
+- 程序代码与已部署的 `05a48bc` 一致。此次双语更新只改文档和提交包；GitHub最新文档提交可能晚于线上应用提交，不能把文档提交号当成新的应用版本。
+- 上一轮已从源码ZIP解压目录，在全新Python3.12环境安装 `requirements.txt` 并验证启动、五个页面、Synthetic Demo 14天预测和8项订货量回归。本轮仅复查文档、文件清单与程序哈希，没有重新执行大型测试或生产安全验收。
+- 最近已完成的完整本地回归为Python465/465、JavaScript75/75；对应GitHub CI汇总为 `Ran 449 / skipped=5`，包括缺少本地M5/可选原始ABS文件的跳过条目；上一轮顺序HTTPS验收50/50通过。这些是此前版本验收记录，不是本次文档修改重新运行的结果。
+- 免费实例可能休眠；同时计算可能返回 `429 processing_busy`，等待当前计算结束后重试，不反复点击。临时数据仍可能因重启提前丢失。
+- 本地开发仓库保留旧内部打包脚本；最新源码ZIP排除该历史脚本及其专用打包测试、旧Padlet草稿和AI声明，详见 `SOURCE_PACKAGE.md`。旧章节中的 `scripts/package_final.py` 构建的是旧交付类型，不用于重建最新提交包。
+- 源码包 `padlet/PADLET_SUBMISSION.md` 及三张实际公网截图为当前展示材料。尚未找到可核实的COMP9001官方rubric或Padlet原始说明，字数、图片数、提交渠道及身份信息仍需自行核对。AI Use Declaration不在包内，也未在本轮生成，需由你另行填写；没有代为发布Padlet。
+
+在本地交付目录 `outputs/` 中使用 `MarginGuard_COMP9001_Final_Source.zip`。新增语言切换链接在两个README顶部均可使用。根目录Markdown已被现有Render构建过滤规则忽略；本次只提交两份README，不修改构建配置或应用。
