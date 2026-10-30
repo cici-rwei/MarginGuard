@@ -1,5 +1,7 @@
-<details id="inventory-upload-panel" class="card inventory-upload-panel">
-  <summary>Add or replace a stock snapshot · optional CSV</summary>
+<details id="inventory-upload-panel" class="card inventory-upload-panel"{% if page == 'inventory' %} open hidden{% endif %}>
+  <summary>Upload Inventory CSV</summary>
+  <p>Add or replace a stock snapshot · optional CSV.</p>
+  <p id="inventory-file-status" role="status">Inventory: Unknown. No confirmed inventory CSV has been loaded.</p>
   <p>Sales records do not tell us how much stock you hold. Add stock counts and supplier assumptions to assess the full product list, or continue with manual inputs for one product.</p>
   <p><a class="text-link" href="/api/business/inventory-template.csv">Download inventory CSV template</a></p>
   <div class="note">Use closing stock on each product’s last selected sales date, shown as the required stock date in the risk list. A different date cannot be assessed automatically. Product and Store must match your sales file exactly.</div>

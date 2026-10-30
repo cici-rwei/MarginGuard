@@ -11,7 +11,7 @@ const queryAtStart=new URLSearchParams(location.search),business=queryAtStart.ge
 let catalog=[],state=null,generation=0,calculation=0,controller=null,datasetId=queryAtStart.get('dataset'),revision=null,features=null,synthetic=queryAtStart.get('mode')==='synthetic'||document.body.dataset.demoMode==='synthetic';
 const Upload=window.MarginGuardUpload,Context=window.MarginGuardContext,Risk=window.MarginGuardRisk;
 let initialContextChecked=false;
-const riskView=business&&page==='dashboard'&&Risk?Risk.createOverview({request:Upload.request,getSession:Upload.getSession,onConfirmed:async data=>{initialContextChecked=true;const previous=selected();generation++;calculation++;controller?.abort();state=null;revision=data.revision;$('content').hidden=true;$('series-selection').hidden=true;if(previous)linkContext(previous);else history.replaceState(null,'','?'+new URLSearchParams({mode:'business',dataset:datasetId,revision}));await loadBusinessCatalog(previous?.series_id);}}):null;
+const riskView=business&&['dashboard','inventory'].includes(page)&&Risk?Risk.createOverview({request:Upload.request,getSession:Upload.getSession,onConfirmed:async data=>{initialContextChecked=true;const previous=selected();drafts.carryInventoryDrafts(datasetId,revision,data.revision);generation++;calculation++;controller?.abort();state=null;revision=data.revision;$('content').hidden=true;$('series-selection').hidden=true;if(previous)linkContext(previous);else history.replaceState(null,'','?'+new URLSearchParams({mode:'business',dataset:datasetId,revision}));await loadBusinessCatalog(previous?.series_id);}}):null;
 let storage;try{storage=window.sessionStorage;}catch(error){storage=null;}
 function unavailableStorage(){ $('draft-status').textContent='Browser storage is unavailable. You can still analyse manually; inputs will not survive navigation. No results or CSV records are stored in browser storage.'; }
 const drafts=Context.create(storage,unavailableStorage);if(!storage)unavailableStorage();
@@ -214,15 +214,19 @@ function setupForm(){
   form.querySelectorAll('button').forEach(b=>b.disabled=false);
   const restoreDefaults=()=>{fields.forEach(([name])=>form.elements[name].value=business?'':(state.defaults[name]??''));if(business){form.elements.stock_as_of.value='';form.elements.hypothetical_stock_at_origin.checked=false;}if(!inventory)form.elements.acknowledge_excluded_on_order.checked=false;timingRules(form);};
   restoreDefaults();const saved=drafts.read(context)[kind]||{};fill(form,saved);timingRules(form);
+  let inputOrigin=inventory?drafts.inventorySource(context):'manual';
+  const stockPlan=business&&inventory&&Risk?Risk.inventorySnapshotPlan(state.inventory_import,context,saved):null;
+  const autoStock=stockPlan&&!stockPlan.requiresConfirmation;
+  if(autoStock){fill(form,stockPlan.values);timingRules(form);inputOrigin='snapshot';drafts.save(context,kind,formInputs(form),inputOrigin);}
   let snapshotReview=null;
   const results=$(inventory?'inventory-results':'scenario-results');results.hidden=true;
-  form.querySelector('.form-status').textContent=Object.keys(saved).length?'Your saved inputs are restored · review any missing values before calculating':business?'Enter your business assumptions · no demo values applied':'Ready · editable Demo assumptions';
-  function changed(){snapshotReview?.invalidate();calculation++;results.hidden=true;form.querySelectorAll('input').forEach(input=>input.setCustomValidity(''));timingRules(form);drafts.save(context,kind,formInputs(form));form.querySelector('.form-status').textContent='Inputs changed · calculate again to update results';if(!inventory){$('handoff-confirm').hidden=true;updateHandoffDifferences(form);}}
+  form.querySelector('.form-status').textContent=autoStock?'Confirmed inventory CSV matched · calculating stock risk…':stockPlan?.requiresConfirmation?'Your edited inputs are kept. Review the confirmed stock snapshot before replacing them.':Object.keys(saved).length?'Your saved inputs are restored · review any missing values before calculating':business&&inventory?'Current stock: Unknown · upload an inventory CSV above or enter your stock assumptions':business?'Enter your business assumptions · no demo values applied':'Ready · editable Demo assumptions';
+  function changed(event,origin='manual'){inputOrigin=origin;snapshotReview?.invalidate();calculation++;results.hidden=true;form.querySelectorAll('input').forEach(input=>input.setCustomValidity(''));timingRules(form);drafts.save(context,kind,formInputs(form),inputOrigin);form.querySelector('.form-status').textContent='Inputs changed · calculate again to update results';if(!inventory){$('handoff-confirm').hidden=true;updateHandoffDifferences(form);}}
   form.oninput=changed;form.onchange=changed;
   form.querySelector('.reset').onclick=()=>{snapshotReview?.invalidate();calculation++;drafts.clear(context);restoreDefaults();results.hidden=true;$('error').hidden=true;$('retry-connection').hidden=true;form.querySelector('.form-status').textContent=business?'Current context cleared · enter assumptions':'Current context cleared · disclosed Demo assumptions restored';if(!inventory)setupHandoff(form,changed);};
   form.onsubmit=async event=>{
     event.preventDefault();timingRules(form);if(!validateForm(form)){results.hidden=true;const invalid=form.querySelector(':invalid');form.querySelector('.form-status').textContent=invalid?.validationMessage||'Review the highlighted input and try again.';return;}
-    const values=formInputs(form),token=++calculation;drafts.save(context,kind,values);
+    const values=formInputs(form),token=++calculation;drafts.save(context,kind,values,inputOrigin);
     $('error').hidden=true;$('retry-connection').hidden=true;results.hidden=true;
     const buttons=form.querySelectorAll('button');buttons.forEach(b=>b.disabled=true);form.querySelectorAll('input').forEach(i=>i.readOnly=true);form.querySelector('.form-status').textContent='Calculating from your inputs…';
     try{const result=await calculate(kind,values,controller.signal);if(gen!==generation||token!==calculation)return;inventory?renderInventory(result,values):renderScenarios(result,values);form.querySelector('.form-status').textContent='Updated · calculated from the inputs shown above';}
@@ -230,8 +234,8 @@ function setupForm(){
     finally{if(gen===generation){buttons.forEach(b=>b.disabled=false);form.querySelectorAll('input').forEach(i=>i.readOnly=false);}}
   };
   if(!inventory){$('scenario-currency').textContent='14 days · '+currency();setupReferences(form,changed);setupHandoff(form,changed);}
-  if(business&&Risk)snapshotReview=Risk.attachSnapshot({form,snapshot:state.inventory_import,context,kind,currentValues:()=>formInputs(form),onApply:values=>{fill(form,values);changed();},isCurrent:()=>gen===generation&&state?.context?.revision===context.revision,request:Upload.request});
-  if(Object.keys(saved).length&&form.checkValidity())setTimeout(()=>{if(gen===generation)form.requestSubmit();},0);
+  if(business&&Risk)snapshotReview=Risk.attachSnapshot({form,snapshot:state.inventory_import,context,kind,automatic:!!autoStock,currentValues:()=>formInputs(form),onApply:values=>{fill(form,values);changed(null,inventory?'snapshot':'manual');if(inventory)form.requestSubmit();},isCurrent:()=>gen===generation&&state?.context?.revision===context.revision,request:Upload.request});
+  if((autoStock||Object.keys(saved).length)&&form.checkValidity()){const scheduled=calculation;setTimeout(()=>{if(gen===generation&&scheduled===calculation)form.requestSubmit();},0);}
 }
 function setupReferences(form,changed){
   const price=state.price_reference||(state.price!==null&&state.price!==undefined?{date:state.price_date,value:state.price}:null),cost=state.cost_reference;

@@ -122,18 +122,56 @@
   function create(storage, onUnavailable) {
     let available = !!storage;
     function failed() { available = false; if (onUnavailable) onUnavailable(); }
-    function read(context) {
-      if (!available) return {};
+    function readRecord(context) {
+      if (!available) return null;
       try {
         const value = JSON.parse(storage.getItem(key(context)) || 'null');
-        if (!value || value.schema !== 1) return {};
-        return {inventory:sanitize('inventory',value.inventory),scenarios:sanitize('scenarios',value.scenarios)};
-      } catch (error) { if (error instanceof SyntaxError) return {}; failed(); return {}; }
+        return value && value.schema === 1 ? value : null;
+      } catch (error) { if (error instanceof SyntaxError) return null; failed(); return null; }
     }
-    function save(context, section, inputs) {
+    function read(context) {
+      const value=readRecord(context);
+      return value?{inventory:sanitize('inventory',value.inventory),scenarios:sanitize('scenarios',value.scenarios)}:{};
+    }
+    // Legacy drafts are conservatively treated as edits. Metadata is UI-only,
+    // separate from the input payload and never changes server authorization.
+    function inventorySource(context) {
+      return readRecord(context)?.inventory_source==='snapshot'?'snapshot':'manual';
+    }
+    function save(context, section, inputs, origin='manual') {
       if (!available || !fields[section]) return false;
-      try { const value=read(context); if(!available)return false; value[section]=sanitize(section,inputs); storage.setItem(key(context),JSON.stringify({schema:1,...value})); return true; }
+      try {
+        const previous=readRecord(context);if(!available)return false;
+        const value={inventory:sanitize('inventory',previous?.inventory),scenarios:sanitize('scenarios',previous?.scenarios)};
+        value[section]=sanitize(section,inputs);
+        const source=section==='inventory'?(origin==='snapshot'?'snapshot':'manual'):(previous?.inventory_source==='snapshot'?'snapshot':'manual');
+        storage.setItem(key(context),JSON.stringify({schema:1,...value,inventory_source:source}));return true;
+      }
       catch (error) { failed(); return false; }
+    }
+    // Call only after the server confirms a stock-only revision of the same
+    // sales dataset. Carry assumptions, never financial inputs or results.
+    function carryInventoryDrafts(datasetId,oldRevision,newRevision) {
+      if(!available||[datasetId,oldRevision,newRevision].some(v=>typeof v!=='string'||!v||v.length>300)||oldRevision===newRevision)return 0;
+      let copied=0;
+      try {
+        const keys=[];for(let i=0;i<storage.length;i++)keys.push(storage.key(i));
+        for(const storedKey of keys){
+          if(!storedKey?.startsWith(PREFIX))continue;
+          let values;try{values=JSON.parse(decodeURIComponent(storedKey.slice(PREFIX.length)));}catch(error){continue;}
+          if(!Array.isArray(values)||values.length!==6||values[0]!=='user_csv'||values[1]!==datasetId||values[2]!==oldRevision)continue;
+          const context=Object.fromEntries(['source_kind','dataset_id','revision','series_id','forecast_origin','currency'].map((name,index)=>[name,values[index]]));
+          try{key(context);}catch(error){continue;}
+          const source=readRecord(context);if(!available)break;
+          const inputs=sanitize('inventory',source?.inventory);
+          if(source?.inventory_source==='snapshot'||!Object.keys(inputs).length)continue;
+          const next={...context,revision:newRevision},existing=read(next);if(!available)break;
+          // A draft already edited in the new version takes precedence.
+          if(Object.keys(existing.inventory||{}).length)continue;
+          if(save(next,'inventory',inputs,'manual'))copied++;else break;
+        }
+      }catch(error){failed();}
+      return copied;
     }
     function clear(context) {
       if (!available) return;
@@ -149,7 +187,7 @@
         });
       } catch (error) { failed(); }
     }
-    return {read,save,clear,available:()=>available,
+    return {read,save,clear,inventorySource,carryInventoryDrafts,available:()=>available,
       clearDataset:id=>clearMatching(values=>values[0]==='user_csv'&&values[1]===id),
       clearUploads:()=>clearMatching(values=>values[0]==='user_csv')};
   }

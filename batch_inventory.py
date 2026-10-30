@@ -12,6 +12,8 @@ import re
 from inventory import inventory_risk
 from phase2_inputs import number, units
 
+# Bump when cached risk results need refreshing; forecasts remain unchanged.
+RISK_CALCULATION_VERSION = 2  # Float-aware whole-unit reorder boundary.
 RISK_CODES = ('stockout', 'reorder_attention', 'excess', 'sufficient', 'not_assessed')
 SORT_OPTIONS = ('priority', 'product', 'stock_asc', 'demand_desc')
 PRIMARY = {
@@ -281,6 +283,7 @@ def build_risk_overview(payload, *, max_series):
         'data_incomplete': counts['not_assessed'], 'classification_note': CLASSIFICATION_NOTE,
     }
     overview = {
+        'calculation_version': RISK_CALCULATION_VERSION,
         'summary': summary, 'rows': rows,
         'stores': sorted({row['store_id'] for row in rows}), 'filtered_count': len(rows),
         'inventory_quality': {

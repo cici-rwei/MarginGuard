@@ -1,17 +1,17 @@
 {
   "schema_version": 2,
-  "audit_date": "2026-10-29",
-  "frozen_at_utc": "2026-10-28T12:41:45.457522+00:00",
-  "scope": "bulk_inventory_risk_public_upload_incremental_release",
-  "source": "current_project_explicit_final_package_allowlist",
-  "file_count": 133,
-  "total_bytes": 3988548,
+  "audit_date": "2026-10-30",
+  "frozen_at_utc": "2026-10-30T05:07:51.502020+00:00",
+  "scope": "deadline_inventory_stability_release",
+  "source": "explicit_reviewed_repository_file_list",
+  "file_count": 138,
+  "total_bytes": 4036262,
   "self_hash_policy": "deployment_files.json is included with sha256 null to avoid recursive self-hashing. Its size is exact; Git commit objects record the complete manifest content. All other files including DEPLOYMENT_FILE_AUDIT.md have SHA-256 values.",
   "files": [
     {
       "path": ".github/workflows/ci.yml",
-      "size_bytes": 1386,
-      "sha256": "9cf2df33de219bad40619a4b07e894f75f31e7e4804437e5ac6af4ff59252e73",
+      "size_bytes": 1313,
+      "sha256": "127532d326478f21a8cd486bc0e42a81de4c879433c1a5cad49751c570cf17cf",
       "reason": "只读持续集成；Python/Node 测试，无部署秘密及数据下载",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -62,6 +62,13 @@
       "size_bytes": 3937,
       "sha256": "b9b064d27786168ed241dd3547ec044bab423805e48141c61fb47982d1f54322",
       "reason": "使用、设计、审计或验收说明；非原始企业销售记录",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "DEADLINE_STABILITY_REPORT.md",
+      "size_bytes": 8183,
+      "sha256": "1cf224877a34ffc6ae140decaa18b4e6443ccd46af1f2134888b41a450ce46e2",
+      "reason": "截止前已验证的库存稳定性修复说明或独立合成回归测试；不含用户上传数据或凭据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -220,8 +227,8 @@
     },
     {
       "path": "batch_inventory.py",
-      "size_bytes": 19394,
-      "sha256": "3c7eb34d467961edcf80f0694ef0ed4a0838a869e841c9daf2c19407c7677c12",
+      "size_bytes": 19601,
+      "sha256": "08be6e1e86be91d67b6b58609a2840455c0bf0850eae8356a4d6efd6f4af1cd4",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -248,8 +255,8 @@
     },
     {
       "path": "business_service.py",
-      "size_bytes": 20751,
-      "sha256": "f9ef6623be5d6de77137a3c004e0fbdba376d26cc5bccb5bc8e58f1c63e69099",
+      "size_bytes": 21017,
+      "sha256": "5fa4523d47bff0387e3d3734f291894d3becb204b4dcadefb6821ea1238b39a5",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -339,7 +346,7 @@
     },
     {
       "path": "deployment_files.json",
-      "size_bytes": 42790,
+      "size_bytes": 44554,
       "sha256": null,
       "reason": "完整部署白名单及文件指纹；自身 SHA-256 不递归计算，由 Git 提交对象固定自身内容",
       "review_status": "reviewed_deployment_candidate"
@@ -409,8 +416,8 @@
     },
     {
       "path": "inventory.py",
-      "size_bytes": 2783,
-      "sha256": "ffdb58d9c42517c69454a22211d00450aa234b8670352abe9777546411e4495c",
+      "size_bytes": 3772,
+      "sha256": "0d4572a0eca88ffbb8adce63c4960b047d8493d0b90ecae5830985229082da66",
       "reason": "应用、计算、适配或离线处理源码；不含原始销售记录",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -577,15 +584,15 @@
     },
     {
       "path": "static/js/business_context.js",
-      "size_bytes": 12889,
-      "sha256": "cea3fee0934a75d354881d4d78f5e21dc5345d279a527547656116557a29c5b8",
+      "size_bytes": 15307,
+      "sha256": "c360532b5c02ad6fa1a4425e4967f41b4e79df40186ab6cf3702e963aa7d01ff",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
       "path": "static/js/business_risk.js",
-      "size_bytes": 21563,
-      "sha256": "eece92eb5e63678483bcc581a0235fbc737b88516298ab124fabcf264bad6584",
+      "size_bytes": 23699,
+      "sha256": "a651168eb0e61ae697cb5afe101d0f2e19fb7954067f98006eb2992a65c15160",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -598,8 +605,8 @@
     },
     {
       "path": "static/js/main.js",
-      "size_bytes": 50387,
-      "sha256": "1d010307a5c00a77dd8ad022232e6fc81c603f71c31e3a47aa0f9f679d47c242",
+      "size_bytes": 51387,
+      "sha256": "1c79bd8b6fb28bed77d6ddefc9f081721e4a6404608bfd80152c2e1917bc401a",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -633,8 +640,8 @@
     },
     {
       "path": "templates/_inventory_upload.html",
-      "size_bytes": 2175,
-      "sha256": "ed8150eec6877cbb8b58babe58d78ba32c2180aaeca02e3cf76b22e24f6e6aa0",
+      "size_bytes": 2371,
+      "sha256": "0ef4c8b176d4e478bc3ee072507426b9ae9877b614b0002e28c89d229c3cb54d",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -668,8 +675,8 @@
     },
     {
       "path": "templates/inventory.html",
-      "size_bytes": 1619,
-      "sha256": "f11386563a5ad2bb9ddb086e693a2558ba02cded09776038f455bbb3113a8d00",
+      "size_bytes": 1733,
+      "sha256": "0b6147df08901f6f9ecddbef34dc826d3a82c3a93aefe8fa378d4c6ff207bb67",
       "reason": "网页模板、样式、交互与本地可视化源码，无内嵌真实销售数据",
       "review_status": "reviewed_deployment_candidate"
     },
@@ -706,6 +713,20 @@
       "size_bytes": 15722,
       "sha256": "093429abd929e78e3c2ba66e5baa2e9e37a0e7745676589c6523d95dedf2bfcd",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/deadline_inventory.test.js",
+      "size_bytes": 9452,
+      "sha256": "b99e441b39e406908d015cd44648a1593a1c6ffbaa624b5a32a9bac3e25fd62b",
+      "reason": "截止前已验证的库存稳定性修复说明或独立合成回归测试；不含用户上传数据或凭据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/inventory_drafts.test.js",
+      "size_bytes": 7149,
+      "sha256": "72348f18f53672403f30c175930f724a3cc2f4535957c53710336b6f73fe7dea",
+      "reason": "截止前已验证的库存稳定性修复说明或独立合成回归测试；不含用户上传数据或凭据",
       "review_status": "reviewed_deployment_candidate"
     },
     {
@@ -793,6 +814,13 @@
       "review_status": "reviewed_deployment_candidate"
     },
     {
+      "path": "tests/test_deadline_templates.py",
+      "size_bytes": 3138,
+      "sha256": "e56c113d7be9150cc02158268ea1d2366f64bb7e0e8417ba951c940066c16a38",
+      "reason": "截止前已验证的库存稳定性修复说明或独立合成回归测试；不含用户上传数据或凭据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
       "path": "tests/test_final_package.py",
       "size_bytes": 8374,
       "sha256": "28424bd160f431ff025d5266ba2497b62a703b395578048945bde727dc601a46",
@@ -818,6 +846,13 @@
       "size_bytes": 8289,
       "sha256": "24ee06b0d0b00a7785a175f2d41f2e36fdbef85d309890887a0092d95ec9c9a8",
       "reason": "批量库存风险源码、独立合成测试、模板或中文交付文档；无私有上传数据",
+      "review_status": "reviewed_deployment_candidate"
+    },
+    {
+      "path": "tests/test_inventory_precision.py",
+      "size_bytes": 10775,
+      "sha256": "92c0ddf29d56a752ea311cd0f12ebf8ec5547fd75c1c63646aa6e7c90ef254df",
+      "reason": "截止前已验证的库存稳定性修复说明或独立合成回归测试；不含用户上传数据或凭据",
       "review_status": "reviewed_deployment_candidate"
     },
     {

@@ -51,9 +51,19 @@
     const keys=kind==='inventory'?['current_stock','lead_time_days','safety_stock','on_order_units','excess_cover_days','stock_as_of','hypothetical_stock_at_origin']:['current_stock','lead_time_days','on_order_units','stock_as_of','hypothetical_stock_at_origin'];
     return Object.fromEntries(keys.filter(key=>snapshot.inputs[key]!==undefined).map(key=>[key,snapshot.inputs[key]]));
   }
+  // Decide whether confirmed stock can fill the form; never manufacture missing stock.
+  // A saved difference is a user assumption and needs the existing review step.
+  function inventorySnapshotPlan(snapshot,context,saved={}){
+    if(!snapshot||!contextMatches(snapshot.context,context)||!snapshot.inputs)return null;
+    const values=snapshotValues(snapshot,context,'inventory');
+    const required=['current_stock','lead_time_days','safety_stock','on_order_units','excess_cover_days','stock_as_of','hypothetical_stock_at_origin'];
+    if(required.some(key=>values[key]===undefined||values[key]===null||values[key]===''))return null;
+    const equal=(a,b)=>typeof a==='boolean'||typeof b==='boolean'?a===b:a!==''&&a!==null&&a!==undefined&&(String(a)===String(b)||Number.isFinite(Number(a))&&Number.isFinite(Number(b))&&Number(a)===Number(b));
+    return {values,requiresConfirmation:Object.keys(saved).length>0&&required.some(key=>!equal(saved[key],values[key]))};
+  }
   function createOverview(options){
-    const doc=options.document||document,el=id=>doc.getElementById(id),panel=el('business-risk-overview');
-    if(!panel)return null;
+    const doc=options.document||document,el=id=>doc.getElementById(id),overviewPanel=el('business-risk-overview'),uploadPanel=el('inventory-upload-panel'),panel=overviewPanel||uploadPanel;
+    if(!panel||!uploadPanel)return null;
     let current=null,pending=null,generation=0,controller=null,uploadGeneration=0,lastRenderedRevision=null;
     const request=options.request,Context=window.MarginGuardContext;
     function error(id,value){const box=el(id),issues=Array.isArray(value.issues)?value.issues:[];box.innerHTML='<p>'+escape(Context.friendlyError(value))+'</p>'+(issues.length?'<ul>'+issues.map(issue=>'<li>'+escape(issue.line?'Line '+issue.line+' · ':'')+escape(Context.businessText(issueText(issue)))+'</li>').join('')+'</ul>':'');box.hidden=false;}
@@ -69,6 +79,8 @@
     function filters(){return {risk:el('risk-filter').value,store:el('risk-store').value,search:el('risk-search').value,sort:el('risk-sort').value};}
     async function refresh(){
       if(!current)return;
+      // Inventory uses the same upload controller without duplicating the portfolio.
+      if(!overviewPanel){lastRenderedRevision=current.revision;return;}
       const context={...current},token=++generation;controller?.abort();controller=new AbortController();
       el('risk-errors').hidden=true;el('risk-status').textContent='Refreshing risk review…';el('priority-risk-list').setAttribute('aria-busy','true');
       try{
@@ -93,11 +105,10 @@
           if(token!==uploadGeneration)return;
           saved=true;pending=null;generation++;controller?.abort();lastRenderedRevision=null;
           current={dataset_id:context.dataset_id,revision:data.revision};
-          el('risk-kpis').innerHTML='';el('priority-risk-list').innerHTML='';el('risk-coverage').textContent='';
-          el('risk-status').textContent='Snapshot saved. Refreshing results for the new version…';
+          if(overviewPanel){el('risk-kpis').innerHTML='';el('priority-risk-list').innerHTML='';el('risk-coverage').textContent='';el('risk-status').textContent='Snapshot saved. Refreshing results for the new version…';}
           el('inventory-upload-report').hidden=true;el('inventory-upload-errors').hidden=true;el('inventory-upload-status').textContent='Snapshot saved. Previous risk results have been cleared while updated results load.';
           await options.onConfirmed(data);
-          el('inventory-upload-status').textContent=lastRenderedRevision===data.revision?'Stock snapshot confirmed. The overview now uses this version; review imports before changing a scenario.':'Snapshot saved, but updated risk results are unavailable. Refresh risks or reload this page; do not submit the same snapshot again.';
+          el('inventory-upload-status').textContent=lastRenderedRevision===data.revision?(overviewPanel?'Stock snapshot confirmed. The overview now uses this version; review imports before changing a scenario.':'Stock snapshot saved for this data version. Confirmed sales history is unchanged. Product assessments load separately; check any error shown below.'):'Snapshot saved, but updated risk results are unavailable. Refresh risks or reload this page; do not submit the same snapshot again.';
         }catch(value){if(saved){el('inventory-upload-status').textContent='Snapshot saved, but updated results are unavailable. Refresh risks or reload this page; previous results are no longer current.';error('inventory-upload-errors',value);}else if(token===uploadGeneration)error('inventory-upload-errors',value);}
         finally{button.disabled=false;}
       };
@@ -107,9 +118,11 @@
         catch(value){error('inventory-upload-errors',value);}
       };
     }
-    el('risk-filter-form').onsubmit=event=>{event.preventDefault();refresh();};
-    ['risk-filter','risk-store','risk-sort'].forEach(id=>el(id).onchange=refresh);
-    el('risk-refresh').onclick=refresh;
+    if(overviewPanel){
+      el('risk-filter-form').onsubmit=event=>{event.preventDefault();refresh();};
+      ['risk-filter','risk-store','risk-sort'].forEach(id=>el(id).onchange=refresh);
+      el('risk-refresh').onclick=refresh;
+    }
     el('inventory-upload-form').onsubmit=async event=>{
       event.preventDefault();const form=event.currentTarget;if(!current||!form.reportValidity())return;
       const file=el('inventory-csv-file').files[0];if(!file)return;
@@ -126,14 +139,17 @@
     };
     async function setDataset(data){
       const changed=!current||current.dataset_id!==data.dataset_id||current.revision!==data.revision;
-      current={dataset_id:data.dataset_id,revision:data.revision};panel.hidden=false;
+      current={dataset_id:data.dataset_id,revision:data.revision};panel.hidden=false;uploadPanel.hidden=false;
+      if(el('inventory-file-status'))el('inventory-file-status').textContent=data.has_inventory?'Inventory CSV: Confirmed · Source: your uploaded stock snapshot in this temporary dataset. Product, store and closing date must match the selected sales history.':'Inventory: Unknown · No confirmed inventory CSV. Upload a stock snapshot, or enter your own assumptions below. Missing stock is never treated as zero.';
       if(changed){uploadGeneration++;pending=null;el('inventory-upload-report').hidden=true;el('inventory-upload-errors').hidden=true;}
-      const selected=el('risk-store').value,stores=[...new Set((data.catalog_series||data.series||[]).map(row=>row.store_id))];
-      el('risk-store').innerHTML='<option value="">All stores</option>'+stores.map(value=>'<option value="'+escape(value)+'">'+escape(value)+'</option>').join('');
-      if(stores.includes(selected))el('risk-store').value=selected;
+      if(overviewPanel){
+        const selected=el('risk-store').value,stores=[...new Set((data.catalog_series||data.series||[]).map(row=>row.store_id))];
+        el('risk-store').innerHTML='<option value="">All stores</option>'+stores.map(value=>'<option value="'+escape(value)+'">'+escape(value)+'</option>').join('');
+        if(stores.includes(selected))el('risk-store').value=selected;
+      }
       await refresh();
     }
-    function clear(){generation++;uploadGeneration++;controller?.abort();current=pending=lastRenderedRevision=null;panel.hidden=true;el('risk-kpis').innerHTML='';el('priority-risk-list').innerHTML='';el('inventory-upload-report').hidden=true;}
+    function clear(){generation++;uploadGeneration++;controller?.abort();current=pending=lastRenderedRevision=null;panel.hidden=true;uploadPanel.hidden=true;if(overviewPanel){el('risk-kpis').innerHTML='';el('priority-risk-list').innerHTML='';}el('inventory-upload-report').hidden=true;}
     return {setDataset,refresh,clear};
   }
   function attachSnapshot(options){
@@ -142,7 +158,7 @@
     if(!snapshot||!contextMatches(snapshot.context,context))return null;
     const box=doc.createElement('section');box.id='snapshot-import';box.className='note snapshot-import';
     const blocked=kind==='scenarios'&&Number(snapshot.inputs?.on_order_units)>0;
-    box.innerHTML='<h3>Confirmed inventory snapshot</h3><p>Closing stock dated '+escape(snapshot.inputs?.stock_as_of)+'. Review before applying: this will not replace your existing inputs automatically.</p>'+(blocked?'<p class="warning">Stock is already on order. This financial model cannot schedule those arrivals, so automatic import is unavailable. Review Inventory & Risk, then explicitly acknowledge excluded orders if you create a separate manual scenario.</p>':'<div class="handoff-buttons"><button type="button" id="review-snapshot-inputs" class="secondary">Review snapshot inputs</button>'+(kind==='scenarios'?'<button type="button" id="review-snapshot-order" class="secondary">Review suggested order quantity</button>':'')+'</div>')+'<p>Prices, costs and budgets stay as entered. An inventory-rule order suggestion is not an optimised purchase or a budget approval.</p><div id="snapshot-confirmation" hidden><div id="snapshot-differences"></div><button type="button" id="apply-snapshot" class="primary">Apply reviewed inputs</button><button type="button" id="cancel-snapshot" class="secondary">Keep current inputs</button></div><p id="snapshot-import-error" role="alert" hidden></p>';
+    box.innerHTML='<h3>Confirmed inventory snapshot</h3><p>Closing stock dated '+escape(snapshot.inputs?.stock_as_of)+(options.automatic?'. Matched by product, store and forecast date, and applied to the inputs below. You can edit these to test a separate assumption.':'. Review before applying: this will not replace your existing inputs automatically.')+'</p>'+(blocked?'<p class="warning">Stock is already on order. This financial model cannot schedule those arrivals, so automatic import is unavailable. Review Inventory & Risk, then explicitly acknowledge excluded orders if you create a separate manual scenario.</p>':'<div class="handoff-buttons"><button type="button" id="review-snapshot-inputs" class="secondary">Review snapshot inputs</button>'+(kind==='scenarios'?'<button type="button" id="review-snapshot-order" class="secondary">Review suggested order quantity</button>':'')+'</div>')+'<p>Prices, costs and budgets stay as entered. An inventory-rule order suggestion is not an optimised purchase or a budget approval.</p><div id="snapshot-confirmation" hidden><div id="snapshot-differences"></div><button type="button" id="apply-snapshot" class="primary">Apply reviewed inputs</button><button type="button" id="cancel-snapshot" class="secondary">Keep current inputs</button></div><p id="snapshot-import-error" role="alert" hidden></p>';
     form.before(box);let token=0,values=null;
     const get=id=>box.querySelector('#'+id);
     function invalidate(){token++;values=null;get('snapshot-confirmation').hidden=true;}
@@ -166,5 +182,5 @@
     };
     return {invalidate};
   }
-  return {contextMatches,detailUrl,filterQuery,summaryMarkup,rowsMarkup,snapshotValues,createOverview,attachSnapshot};
+  return {contextMatches,detailUrl,filterQuery,summaryMarkup,rowsMarkup,snapshotValues,inventorySnapshotPlan,createOverview,attachSnapshot};
 });

@@ -214,11 +214,15 @@ def analysis(store, owner, identifier, parameters):
 
 
 def saved_risk_overview(payload, max_series):
-    """Read bounded cached results; legacy sessions get only a lightweight join."""
-    from batch_inventory import build_risk_overview
+    """Reuse current risk results; refresh legacy results from stored forecasts."""
+    from batch_inventory import RISK_CALCULATION_VERSION, build_risk_overview
     inventory = payload.get('inventory') or {}
     cached = inventory.get('overview') or payload.get('risk_overview')
-    return cached if cached is not None else build_risk_overview(payload, max_series=max_series)
+    if isinstance(cached, dict) and cached.get('calculation_version') == RISK_CALCULATION_VERSION:
+        return cached
+    # Only the bounded stock/forecast join is recalculated, without refitting
+    # forecasts or changing the user's dataset, revision or sales records.
+    return build_risk_overview(payload, max_series=max_series)
 
 
 def risk_overview(store, owner, identifier, parameters):

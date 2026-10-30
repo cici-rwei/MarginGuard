@@ -1,6 +1,28 @@
 """Explainable inventory rules using hypothetical stock, not Walmart inventory."""
-from decimal import Decimal, ROUND_CEILING
+from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
+from math import ulp
 from phase2_inputs import demand_values, number, units
+
+
+def _reorder_units(gap, original_demand, lead):
+    """Ceil real fractional units, ignoring only float representation noise.
+
+    Forecast averages arrive as floats. Converting each to Decimal preserves
+    tiny residuals (e.g. seven 619/7 values sum to 619.00000000000001).
+    One ULP per contributing float bounds its binary/decimal representation
+    error. Exact integer/Decimal/string inputs receive no float tolerance.
+    This boundary correction does not change demand or risk comparisons.
+    """
+    gap = max(Decimal(0), gap)
+    contributing = original_demand[:lead] if lead <= 14 else original_demand
+    tolerance = sum((Decimal(str(ulp(value))) for value in contributing
+                     if isinstance(value, float)), Decimal(0))
+    if lead > 14:
+        tolerance = tolerance * lead / 14
+    lower = gap.to_integral_value(rounding=ROUND_FLOOR)
+    if gap - lower <= tolerance:
+        gap = lower
+    return int(gap.to_integral_value(rounding=ROUND_CEILING))
 
 
 def inventory_risk(item_id, daily_demand, current_stock, lead_time_days,
@@ -20,7 +42,7 @@ def inventory_risk(item_id, daily_demand, current_stock, lead_time_days,
     lead_demand = sum(demand[:lead]) if lead <= 14 else sum(demand) + (lead - 14) * average
     target = lead_demand + safety
     position = stock + on_order
-    reorder = int(max(Decimal(0), target - position).to_integral_value(rounding=ROUND_CEILING))
+    reorder = _reorder_units(target - position, daily_demand, lead)
     stockout = Decimal(stock) < lead_demand
     excess = cover > threshold if cover is not None else stock > 0
     if stockout:
